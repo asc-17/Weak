@@ -2,6 +2,7 @@
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Weak"
+             xmlns:converters="clr-namespace:Weak.Converters"
              x:Class="Weak.App">
     <Application.Resources>
         <ResourceDictionary>
@@ -9,6 +10,13 @@
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Converters -->
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+            <converters:BoolToCheckboxColorConverter x:Key="BoolToCheckboxColorConverter"/>
+            <converters:BoolToCheckboxBgConverter x:Key="BoolToCheckboxBgConverter"/>
+            <converters:BoolToTextColorConverter x:Key="BoolToTextColorConverter"/>
+            <converters:BoolToStrikethroughConverter x:Key="BoolToStrikethroughConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

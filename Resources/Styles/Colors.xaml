@@ -18,20 +18,26 @@
     <Color x:Key="TextPrimaryDark">#f8fafc</Color> <!-- Slate-50 -->
     <Color x:Key="TextSecondaryDark">#94a3b8</Color> <!-- Slate-400 -->
 
+    <!-- Compatibility Keys for Styles.xaml -->
+    <Color x:Key="Secondary">#3b82f6</Color>
+    <Color x:Key="Tertiary">#104db0</Color>
+    <Color x:Key="PrimaryDarkText">#0f172a</Color>
+    <Color x:Key="SecondaryDarkText">#94a3b8</Color>
+
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>
     <Color x:Key="Magenta">#D600AA</Color>
     <Color x:Key="MidnightBlue">#190649</Color>
     <Color x:Key="OffBlack">#1f1f1f</Color>
 
-    <Color x:Key="Gray100">#E1E1E1</Color>
-    <Color x:Key="Gray200">#C8C8C8</Color>
-    <Color x:Key="Gray300">#ACACAC</Color>
-    <Color x:Key="Gray400">#919191</Color>
-    <Color x:Key="Gray500">#6E6E6E</Color>
-    <Color x:Key="Gray600">#404040</Color>
-    <Color x:Key="Gray900">#212121</Color>
-    <Color x:Key="Gray950">#141414</Color>
+    <Color x:Key="Gray100">#f1f5f9</Color> <!-- Slate-100 -->
+    <Color x:Key="Gray200">#e2e8f0</Color> <!-- Slate-200 -->
+    <Color x:Key="Gray300">#cbd5e1</Color> <!-- Slate-300 -->
+    <Color x:Key="Gray400">#94a3b8</Color> <!-- Slate-400 -->
+    <Color x:Key="Gray500">#64748b</Color> <!-- Slate-500 -->
+    <Color x:Key="Gray600">#475569</Color> <!-- Slate-600 -->
+    <Color x:Key="Gray900">#0f172a</Color> <!-- Slate-900 -->
+    <Color x:Key="Gray950">#020617</Color> <!-- Slate-950 -->
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>

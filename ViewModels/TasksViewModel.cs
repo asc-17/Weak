@@ -10,28 +10,103 @@ public partial class TasksViewModel : ObservableObject
     public ObservableCollection<TaskItem> Tasks { get; } = new();
     public ObservableCollection<Subject> Subjects { get; } = new();
 
+    [ObservableProperty]
+    private string currentDate;
+
+    public int TaskCount => Tasks.Count;
+
     public TasksViewModel()
     {
+        CurrentDate = DateTime.Now.ToString("dddd, MMM dd");
         LoadMockData();
     }
 
     private void LoadMockData()
     {
         Tasks.Clear();
-        Tasks.Add(new TaskItem { Title = "Calculus Problem Set 4", Deadline = DateTime.Now.AddDays(1), SubjectColor = "#ef4444" }); // Red
-        Tasks.Add(new TaskItem { Title = "History Essay Draft", Deadline = DateTime.Now.AddDays(3), SubjectColor = "#eab308" }); // Yellow
-        Tasks.Add(new TaskItem { Title = "Physics Lab Report", Deadline = DateTime.Now.AddDays(2), SubjectColor = "#3b82f6" }); // Blue
-        Tasks.Add(new TaskItem { Title = "Read Chapter 5-6", Deadline = DateTime.Now.AddDays(5), SubjectColor = "#22c55e" }); // Green
+        
+        // Tasks from the Stitch design
+        Tasks.Add(new TaskItem 
+        { 
+            Title = "Read Chapter 4: Macroeconomics", 
+            Deadline = DateTime.Today, 
+            SubjectColor = "#ef4444",
+            IsCompleted = false
+        });
+        
+        Tasks.Add(new TaskItem 
+        { 
+            Title = "Submit Calculus Problem Set", 
+            Deadline = DateTime.Today.AddDays(-1), 
+            SubjectColor = "#3b82f6",
+            IsCompleted = true
+        });
+        
+        Tasks.Add(new TaskItem 
+        { 
+            Title = "Draft History Essay", 
+            Deadline = DateTime.Today.AddHours(17), // Fri, 5:00 PM
+            SubjectColor = "#eab308",
+            IsCompleted = false
+        });
+        
+        Tasks.Add(new TaskItem 
+        { 
+            Title = "Lab Report: Physics", 
+            Deadline = DateTime.Today.AddDays(3).AddHours(9), // Mon, 9:00 AM
+            SubjectColor = "#8b5cf6",
+            IsCompleted = false
+        });
 
         Subjects.Clear();
-        Subjects.Add(new Subject { Name = "Mathematics", Icon = "functions", Color = "#ef4444" });
-        Subjects.Add(new Subject { Name = "Physics", Icon = "science", Color = "#3b82f6" });
-        Subjects.Add(new Subject { Name = "History", Icon = "history_edu", Color = "#eab308" });
+        
+        // Subjects with emoji icons
+        Subjects.Add(new Subject 
+        { 
+            Name = "Economics", 
+            Icon = "???",
+            IconBackground = "#dbeafe",
+            IconColor = "#1d4ed8"
+        });
+        
+        Subjects.Add(new Subject 
+        { 
+            Name = "Calculus II", 
+            Icon = "?",
+            IconBackground = "#e0e7ff",
+            IconColor = "#4f46e5"
+        });
+        
+        Subjects.Add(new Subject 
+        { 
+            Name = "World History", 
+            Icon = "???",
+            IconBackground = "#fef3c7",
+            IconColor = "#d97706"
+        });
+        
+        Subjects.Add(new Subject 
+        { 
+            Name = "Physics", 
+            Icon = "??",
+            IconBackground = "#ddd6fe",
+            IconColor = "#7c3aed"
+        });
+    }
+
+    [RelayCommand]
+    private void ToggleTask(TaskItem task)
+    {
+        if (task != null)
+        {
+            task.IsCompleted = !task.IsCompleted;
+        }
     }
 
     [RelayCommand]
     private void AddTask()
     {
-        // Stub for FAB action
+        // Stub for adding new task
     }
 }
+

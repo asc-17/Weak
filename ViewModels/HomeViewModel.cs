@@ -28,7 +28,9 @@ public partial class HomeViewModel : ObservableObject
             DateRange = GetDateRange(0),
             Score = 8.2,
             Intensity = "High Load",
-            Progress = 0.82
+            Progress = 0.82,
+            Opacity = 1.0,
+            IsCurrentWeek = true
         };
 
         // Next Week
@@ -38,7 +40,9 @@ public partial class HomeViewModel : ObservableObject
             DateRange = GetDateRange(1),
             Score = 4.5,
             Intensity = "Moderate",
-            Progress = 0.45
+            Progress = 0.45,
+            Opacity = 0.6,
+            IsCurrentWeek = false
         };
 
         // Week After
@@ -48,7 +52,9 @@ public partial class HomeViewModel : ObservableObject
             DateRange = GetDateRange(2),
             Score = 1.2,
             Intensity = "Low",
-            Progress = 0.12
+            Progress = 0.12,
+            Opacity = 0.5,
+            IsCurrentWeek = false
         };
 
         WeekCards.Add(thisWeek);

@@ -18,14 +18,14 @@ public partial class CalendarViewModel : ObservableObject
         Days.Clear();
 
         // Today
-        Days.Add(new CalendarGroup("Mon", "23", "Today", new List<CalendarItem>
+        Days.Add(new CalendarGroup("Mon", "23", "Today", true, new List<CalendarItem>
         {
             new CalendarItem { Time = "10:00", Period = "AM", Title = "CS101 Algorithm Analysis", Subtitle = "IIT Deadline: Submit via Portal", PriorityColor = "#ef4444" },
             new CalendarItem { Time = "02:00", Period = "PM", Title = "Study Group", Subtitle = "Library Room 304 • 1h 30m", PriorityColor = "#3b82f6" }
         }));
 
         // Tomorrow
-        Days.Add(new CalendarGroup("Tue", "24", "Tomorrow", new List<CalendarItem>
+        Days.Add(new CalendarGroup("Tue", "24", "Tomorrow", false, new List<CalendarItem>
         {
             new CalendarItem { Time = "11:59", Period = "PM", Title = "Submit Physics Lab Report", Subtitle = "PHY202 • Late submission penalty applies", PriorityColor = "#f97316" }
         }));

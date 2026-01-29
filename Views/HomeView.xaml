@@ -3,164 +3,182 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Weak.ViewModels"
              xmlns:models="clr-namespace:Weak.Models"
+             xmlns:behaviors="clr-namespace:Weak.Behaviors"
              x:Class="Weak.Views.HomeView"
-             Title="Workload">
+             Title="Workload"
+             BackgroundColor="{StaticResource BackgroundLight}">
 
-    <ScrollView BackgroundColor="{StaticResource BackgroundLight}">
+    <ScrollView>
         <VerticalStackLayout Padding="24,16,24,96" Spacing="24">
             
             <!-- Top App Bar -->
-            <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,8">
+            <Grid ColumnDefinitions="*, Auto" Margin="0,8,0,0">
                 <Label Text="Workload" 
-                       FontAttributes="Bold" 
-                       FontSize="24" 
+                       FontFamily="InterBold"
+                       FontSize="28" 
                        TextColor="{StaticResource TextPrimaryLight}"
                        VerticalOptions="Center"/>
                 
-                <Frame Grid.Column="1" 
-                       HeightRequest="40" 
-                       WidthRequest="40" 
-                       CornerRadius="20" 
-                       Padding="0" 
-                       HasShadow="False"
-                       BorderColor="{StaticResource Gray200}"
-                       BackgroundColor="White">
-                    <Image Source="user_user.png" 
-                           Aspect="AspectFill"
-                           Margin="8"/>
-                     <!-- Note: Using placeholder image or just icon -->
-                </Frame>
+                <!-- Profile Button -->
+                <Border Grid.Column="1" 
+                        StrokeShape="RoundRectangle 20" 
+                        HeightRequest="40" 
+                        WidthRequest="40" 
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        VerticalOptions="Center"
+                        HorizontalOptions="End">
+                    <Label Text="&#xE7FD;" 
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="18"
+                           HorizontalOptions="Center" 
+                           VerticalOptions="Center" 
+                           TextColor="{StaticResource TextPrimaryLight}"/>
+                </Border>
             </Grid>
 
-            <!-- Intro Text -->
+            <!-- Intro/Overview Section -->
             <VerticalStackLayout Spacing="4">
                 <Label Text="OVERVIEW" 
-                       FontSize="12" 
-                       FontAttributes="Bold"
-                       TextColor="{StaticResource TextSecondaryLight}" 
-                       CharacterSpacing="1"/>
+                       FontFamily="InterMedium"
+                       FontSize="11" 
+                       TextColor="{StaticResource TextSecondaryLight}"
+                       LetterSpacing="0.8"/>
                 <Label Text="{Binding OverviewText}" 
-                       FontSize="18" 
-                       TextColor="{StaticResource TextPrimaryLight}"
-                       LineHeight="1.2"/>
+                       FontFamily="InterRegular"
+                       FontSize="17" 
+                       LineHeight="1.3"
+                       TextColor="{StaticResource TextPrimaryLight}"/>
             </VerticalStackLayout>
 
-            <!-- Week Cards -->
-            <StackLayout BindableLayout.ItemsSource="{Binding WeekCards}" Spacing="20">
+            <!-- Week Cards Collection -->
+            <StackLayout BindableLayout.ItemsSource="{Binding WeekCards}" Spacing="24">
                 <BindableLayout.ItemTemplate>
-                    <DataTemplate x:DataType="vm:WeekCard">
-                        <Border StrokeShape="RoundRectangle 16"
+                    <DataTemplate x:DataType="models:WeekCard">
+                        <Border StrokeShape="RoundRectangle 16" 
+                                BackgroundColor="White"
                                 Stroke="{StaticResource Gray100}"
                                 StrokeThickness="1"
-                                BackgroundColor="White"
-                                Padding="24">
+                                Padding="24"
+                                Opacity="{Binding Opacity}">
                             <Border.Shadow>
-                                <Shadow Brush="Black"
-                                        Offset="0,2"
-                                        Radius="4"
-                                        Opacity="0.05"/>
+                                <Shadow Brush="Black" Offset="0,1" Radius="3" Opacity="0.05"/>
                             </Border.Shadow>
                             
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HomeViewModel}}, Path=ToggleExpandCommand}"
-                                                      CommandParameter="{Binding .}"/>
-                            </Border.GestureRecognizers>
-
                             <VerticalStackLayout Spacing="20">
-                                <!-- Card Header -->
-                                <Grid ColumnDefinitions="*, Auto">
-                                    <VerticalStackLayout Spacing="4">
-                                        <HorizontalStackLayout Spacing="8">
-                                            <BoxView Color="{StaticResource Primary}" 
-                                                     HeightRequest="8" 
-                                                     WidthRequest="8" 
-                                                     CornerRadius="4"
-                                                     VerticalOptions="Center"/>
-                                            <Label Text="{Binding Title}" 
-                                                   FontAttributes="Bold" 
-                                                   FontSize="18"
-                                                   TextColor="{StaticResource TextPrimaryLight}"/>
-                                        </HorizontalStackLayout>
+                                <!-- Header Row -->
+                                <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="8">
+                                    <!-- Blue Pulsing Dot Indicator for Current Week -->
+                                    <Border Grid.Column="0"
+                                            HeightRequest="8" 
+                                            WidthRequest="8"
+                                            StrokeShape="Ellipse"
+                                            BackgroundColor="{StaticResource Primary}"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center"
+                                            IsVisible="{Binding IsCurrentWeek}">
+                                        <Border.Behaviors>
+                                            <behaviors:PulseAnimationBehavior/>
+                                        </Border.Behaviors>
+                                    </Border>
+
+                                    <!-- Title and Date Range -->
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding Title}" 
+                                               FontFamily="InterBold"
+                                               FontSize="18" 
+                                               TextColor="{StaticResource TextPrimaryLight}"/>
                                         <Label Text="{Binding DateRange}" 
-                                               FontSize="14" 
-                                               TextColor="{StaticResource TextSecondaryLight}"
-                                               FontAttributes="Bold"/>
+                                               FontFamily="InterMedium"
+                                               FontSize="13" 
+                                               TextColor="{StaticResource TextSecondaryLight}"/>
                                     </VerticalStackLayout>
                                     
-                                    <HorizontalStackLayout Grid.Column="1" VerticalOptions="Start" Spacing="2">
-                                        <Label Text="{Binding Score}" 
-                                               FontSize="30" 
-                                               FontAttributes="Bold" 
-                                               TextColor="{StaticResource TextPrimaryLight}"/>
+                                    <!-- Score Display -->
+                                    <HorizontalStackLayout Grid.Column="2" Spacing="2" VerticalOptions="Start">
+                                        <Label FontFamily="InterBold"
+                                               FontSize="32"
+                                               TextColor="{StaticResource TextPrimaryLight}"
+                                               VerticalOptions="Center">
+                                            <Label.Text>
+                                                <Binding Path="Score" StringFormat="{}{0:F1}"/>
+                                            </Label.Text>
+                                        </Label>
                                         <Label Text="/10" 
-                                               FontSize="14" 
-                                               FontAttributes="Bold" 
-                                               TextColor="{StaticResource TextSecondaryLight}"
+                                               FontFamily="InterSemiBold"
+                                               FontSize="13" 
+                                               TextColor="{StaticResource Gray400}"
                                                VerticalOptions="End"
-                                               Margin="0,0,0,6"/>
+                                               Margin="0,0,0,4"/>
                                     </HorizontalStackLayout>
                                 </Grid>
 
                                 <!-- Progress Bar Section -->
                                 <VerticalStackLayout Spacing="8">
-                                    <Grid HeightRequest="16">
-                                        <!-- Track -->
-                                        <BoxView Color="{StaticResource BackgroundLight}" 
-                                                 CornerRadius="8"
-                                                 VerticalOptions="Fill" 
-                                                 HorizontalOptions="Fill"/>
+                                    <!-- Progress Bar with Tick Marks -->
+                                    <Grid HeightRequest="16" x:Name="ProgressContainer">
+                                        <!-- Background Track -->
+                                        <Border HeightRequest="16"
+                                                StrokeShape="RoundRectangle 8"
+                                                BackgroundColor="{StaticResource Gray100}"
+                                                StrokeThickness="0"/>
                                         
-                                        <!-- Tick Marks -->
-                                        <BoxView Color="White" Opacity="0.5" WidthRequest="1" HorizontalOptions="Start" Margin="{OnPlatform Android='80,0,0,0', Default='25%,0,0,0'}"/> <!-- Approximation -->
-                                        
-                                        <!-- Progress Indicator -->
-                                        <!-- Since we can't easily bind WidthRequest to Percentage without converter, using ScaleX or Grid workaround. 
-                                             Simpler: Use ProgressBar? No, need custom style. 
-                                             Workaround: Grid with ColumnDefinitions. -->
-                                         <!-- Using a simple BoxView with WidthRequest bound to a calculated property in VM would be best, 
-                                              but here we have 'Progress' (0-1). We can use a custom Grid layout or AbsoluteLayout.
-                                              AbsoluteLayout is good here. -->
-                                         
-                                        <AbsoluteLayout>
-                                            <BoxView Color="{StaticResource Primary}" 
-                                                     CornerRadius="8"
-                                                     AbsoluteLayout.LayoutBounds="{Binding Progress, StringFormat='0,0,{0},1'}"
-                                                     AbsoluteLayout.LayoutFlags="All"/>
-                                        </AbsoluteLayout>
+                                        <!-- Progress Fill using ProgressBar -->
+                                        <ProgressBar Progress="{Binding Progress}"
+                                                     ProgressColor="{StaticResource Primary}"
+                                                     HeightRequest="16"
+                                                     VerticalOptions="Center"
+                                                     ScaleY="1.33"/>
+
+                                        <!-- Tick Mark Separators -->
+                                        <Grid ColumnDefinitions="*,*,*,*">
+                                            <BoxView Grid.Column="0" 
+                                                     Color="White" 
+                                                     WidthRequest="1" 
+                                                     HeightRequest="16"
+                                                     HorizontalOptions="End"/>
+                                            <BoxView Grid.Column="1" 
+                                                     Color="White" 
+                                                     WidthRequest="1" 
+                                                     HeightRequest="16"
+                                                     HorizontalOptions="End"/>
+                                            <BoxView Grid.Column="2" 
+                                                     Color="White" 
+                                                     WidthRequest="1" 
+                                                     HeightRequest="16"
+                                                     HorizontalOptions="End"/>
+                                        </Grid>
                                     </Grid>
 
-                                    <Grid ColumnDefinitions="*, Auto">
+                                    <!-- Intensity Label Row -->
+                                    <Grid ColumnDefinitions="Auto, *">
                                         <Label Text="Intensity" 
-                                               FontSize="12" 
-                                               TextColor="{StaticResource TextSecondaryLight}"
-                                               FontAttributes="Bold"/>
+                                               FontFamily="InterMedium"
+                                               FontSize="11" 
+                                               TextColor="{StaticResource Gray400}"
+                                               VerticalOptions="Center"/>
                                         
-                                        <Border StrokeShape="RoundRectangle 4"
-                                                BackgroundColor="{StaticResource BackgroundLight}"
+                                        <Border Grid.Column="1" 
+                                                StrokeShape="RoundRectangle 4"
+                                                BackgroundColor="#ecf2ff"
                                                 StrokeThickness="0"
-                                                Padding="8,2">
+                                                Padding="8,2"
+                                                HorizontalOptions="End">
                                             <Label Text="{Binding Intensity}" 
-                                                   FontSize="12" 
-                                                   FontAttributes="Bold" 
+                                                   FontFamily="InterBold"
+                                                   FontSize="11" 
                                                    TextColor="{StaticResource Primary}"/>
                                         </Border>
                                     </Grid>
                                 </VerticalStackLayout>
-                                
-                                <!-- Expanded Content (Stubbed) -->
-                                <VerticalStackLayout IsVisible="{Binding IsExpanded}" Spacing="8">
-                                    <BoxView HeightRequest="1" Color="{StaticResource Gray100}" Margin="0,8"/>
-                                    <Label Text="Subject Breakdown" FontAttributes="Bold" FontSize="14"/>
-                                    <Label Text="• Mathematics: 4.0" FontSize="13" TextColor="{StaticResource TextSecondaryLight}"/>
-                                    <Label Text="• Physics: 3.2" FontSize="13" TextColor="{StaticResource TextSecondaryLight}"/>
-                                    <Label Text="• History: 1.0" FontSize="13" TextColor="{StaticResource TextSecondaryLight}"/>
-                                </VerticalStackLayout>
+
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </StackLayout>
-            
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

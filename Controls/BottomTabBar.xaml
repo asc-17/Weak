@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Grid xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+      xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+      x:Class="Weak.Controls.BottomTabBar"
+      x:Name="TabBarControl"
+      BackgroundColor="White"
+      HeightRequest="84"
+      ColumnDefinitions="*,*,*,*"
+      Padding="0,8,0,20">
+    
+    <!-- Agenda Tab -->
+    <VerticalStackLayout Grid.Column="0" 
+                         Spacing="4" 
+                         HorizontalOptions="Center"
+                         VerticalOptions="Start">
+        <VerticalStackLayout.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding Source={x:Reference TabBarControl}, Path=AgendaCommand}"/>
+        </VerticalStackLayout.GestureRecognizers>
+        
+        <Border StrokeShape="RoundRectangle 12"
+                BackgroundColor="{Binding Source={x:Reference TabBarControl}, Path=AgendaBackground}"
+                Padding="8,4"
+                StrokeThickness="0"
+                HorizontalOptions="Center">
+            <Label Text="??" 
+                   FontSize="22"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Border>
+        <Label Text="Agenda" 
+               FontFamily="InterSemiBold"
+               FontSize="10" 
+               TextColor="{Binding Source={x:Reference TabBarControl}, Path=AgendaTextColor}"
+               HorizontalOptions="Center"/>
+    </VerticalStackLayout>
+    
+    <!-- To-Do Tab -->
+    <VerticalStackLayout Grid.Column="1" 
+                         Spacing="4" 
+                         HorizontalOptions="Center"
+                         VerticalOptions="Start">
+        <VerticalStackLayout.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding Source={x:Reference TabBarControl}, Path=TodoCommand}"/>
+        </VerticalStackLayout.GestureRecognizers>
+        
+        <Border StrokeShape="RoundRectangle 12"
+                BackgroundColor="Transparent"
+                Padding="8,4"
+                StrokeThickness="0"
+                HorizontalOptions="Center">
+            <Label Text="?" 
+                   FontFamily="InterBold"
+                   FontSize="22"
+                   TextColor="{StaticResource Gray400}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Border>
+        <Label Text="To-Do" 
+               FontFamily="InterMedium"
+               FontSize="10" 
+               TextColor="{StaticResource Gray400}"
+               HorizontalOptions="Center"/>
+    </VerticalStackLayout>
+    
+    <!-- Workload Tab -->
+    <VerticalStackLayout Grid.Column="2" 
+                         Spacing="4" 
+                         HorizontalOptions="Center"
+                         VerticalOptions="Start">
+        <VerticalStackLayout.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding Source={x:Reference TabBarControl}, Path=WorkloadCommand}"/>
+        </VerticalStackLayout.GestureRecognizers>
+        
+        <Border StrokeShape="RoundRectangle 12"
+                BackgroundColor="Transparent"
+                Padding="8,4"
+                StrokeThickness="0"
+                HorizontalOptions="Center">
+            <Label Text="??" 
+                   FontSize="22"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Border>
+        <Label Text="Workload" 
+               FontFamily="InterMedium"
+               FontSize="10" 
+               TextColor="{StaticResource Gray400}"
+               HorizontalOptions="Center"/>
+    </VerticalStackLayout>
+    
+    <!-- Settings Tab -->
+    <VerticalStackLayout Grid.Column="3" 
+                         Spacing="4" 
+                         HorizontalOptions="Center"
+                         VerticalOptions="Start">
+        <VerticalStackLayout.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding Source={x:Reference TabBarControl}, Path=SettingsCommand}"/>
+        </VerticalStackLayout.GestureRecognizers>
+        
+        <Border StrokeShape="RoundRectangle 12"
+                BackgroundColor="Transparent"
+                Padding="8,4"
+                StrokeThickness="0"
+                HorizontalOptions="Center">
+            <Label Text="??" 
+                   FontSize="22"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </Border>
+        <Label Text="Settings" 
+               FontFamily="InterMedium"
+               FontSize="10" 
+               TextColor="{StaticResource Gray400}"
+               HorizontalOptions="Center"/>
+    </VerticalStackLayout>
+    
+    <!-- Top Border -->
+    <BoxView Grid.ColumnSpan="4" 
+             Color="{StaticResource Gray100}" 
+             HeightRequest="1" 
+             VerticalOptions="Start"/>
+</Grid>
