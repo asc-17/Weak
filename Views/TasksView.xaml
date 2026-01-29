@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Weak.ViewModels"
+             xmlns:models="clr-namespace:Weak.Models"
+             x:Class="Weak.Views.TasksView"
+             Title="Tasks">
+
+    <Grid BackgroundColor="{StaticResource BackgroundLight}">
+        <ScrollView>
+            <VerticalStackLayout Padding="24" Spacing="24">
+                
+                <!-- Tasks Section -->
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="Tasks" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource TextPrimaryLight}"/>
+                    
+                    <CollectionView ItemsSource="{Binding Tasks}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:TaskItem">
+                                <Border StrokeShape="RoundRectangle 8"
+                                        StrokeThickness="0"
+                                        BackgroundColor="White"
+                                        Padding="16"
+                                        Margin="0,0,0,12">
+                                    <Border.Shadow>
+                                        <Shadow Brush="Black" Offset="0,1" Radius="2" Opacity="0.05"/>
+                                    </Border.Shadow>
+                                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                                        <CheckBox IsChecked="{Binding IsCompleted}" 
+                                                  Color="{StaticResource Primary}"/>
+                                        
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                            <Label Text="{Binding Title}" 
+                                                   FontSize="16" 
+                                                   TextColor="{StaticResource TextPrimaryLight}"/>
+                                            <!-- Validating if we want subject indicator - small dot/text? 
+                                                 Prompt says "Task row: checkbox, task title, deadline". 
+                                                 Maybe SubjectColor dot? I'll add a small dot. -->
+                                            <BoxView Color="{Binding SubjectColor}" HeightRequest="4" WidthRequest="4" CornerRadius="2" HorizontalOptions="Start" Margin="0,4,0,0"/> 
+                                        </VerticalStackLayout>
+                                        
+                                        <Label Grid.Column="2" 
+                                               Text="{Binding Deadline, StringFormat='{0:MMM dd}'}" 
+                                               FontSize="12" 
+                                               TextColor="{StaticResource TextSecondaryLight}"
+                                               VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- Subjects Section -->
+                <VerticalStackLayout Spacing="16">
+                    <Label Text="Subjects" 
+                           FontSize="20" 
+                           FontAttributes="Bold" 
+                           TextColor="{StaticResource TextPrimaryLight}"/>
+                    
+                    <CollectionView ItemsSource="{Binding Subjects}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Subject">
+                                <Grid ColumnDefinitions="Auto, *" Padding="0,8" ColumnSpacing="12">
+                                    <Frame HeightRequest="32" WidthRequest="32" CornerRadius="8" Padding="0" BackgroundColor="{Binding Color}" HasShadow="False" VerticalOptions="Center">
+                                        <!-- Placeholder for Icon (Material Symbol) -->
+                                        <Label Text="{Binding Initial}" 
+                                               TextColor="White" 
+                                               HorizontalOptions="Center" 
+                                               VerticalOptions="Center" 
+                                               FontSize="14" FontAttributes="Bold"/> 
+                                        <!-- Assuming we don't have font icons setup, using first char or color block -->
+                                    </Frame>
+                                    <Label Grid.Column="1" 
+                                           Text="{Binding Name}" 
+                                           FontSize="16" 
+                                           VerticalOptions="Center" 
+                                           TextColor="{StaticResource TextPrimaryLight}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+                <!-- Bottom Spacer for FAB -->
+                <BoxView HeightRequest="80" Color="Transparent"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Floating Action Button -->
+        <Button Text="+" 
+                FontSize="32" 
+                TextColor="White"
+                BackgroundColor="{StaticResource Primary}"
+                CornerRadius="28"
+                HeightRequest="56"
+                WidthRequest="56"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="24"
+                Command="{Binding AddTaskCommand}">
+            <Button.Shadow>
+                <Shadow Brush="{StaticResource Primary}" Offset="0,4" Radius="8" Opacity="0.4"/>
+            </Button.Shadow>
+        </Button>
+    </Grid>
+</ContentPage>

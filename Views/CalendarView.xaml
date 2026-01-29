@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Weak.ViewModels"
+             xmlns:models="clr-namespace:Weak.Models"
+             x:Class="Weak.Views.CalendarView"
+             Title="Calendar">
+
+    <Grid RowDefinitions="Auto, *" BackgroundColor="{StaticResource BackgroundLight}">
+        
+        <!-- Top App Bar -->
+        <Grid Padding="24,12" ColumnDefinitions="*, Auto" BackgroundColor="{StaticResource BackgroundLight}">
+            <VerticalStackLayout Spacing="0">
+                <Label Text="October 2023" FontAttributes="Bold" FontSize="20" TextColor="{StaticResource TextPrimaryLight}"/>
+                <Label Text="Week 43" FontSize="14" TextColor="{StaticResource TextSecondaryLight}" FontAttributes="Bold"/>
+            </VerticalStackLayout>
+            <HorizontalStackLayout Grid.Column="1" Spacing="16">
+                 <!-- Placeholders for Search/More icons -->
+                 <Label Text="🔍" FontSize="20" TextColor="{StaticResource TextSecondaryLight}" VerticalOptions="Center"/>
+                 <Label Text="..." FontSize="24" TextColor="{StaticResource TextSecondaryLight}" VerticalOptions="Center" FontAttributes="Bold"/>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- View Mode Tabs (Stubbed) -->
+        <!-- Skipping for brevity as implementation priority is Timeline view -->
+
+        <!-- Timeline Content -->
+        <CollectionView Grid.Row="1" 
+                        ItemsSource="{Binding Days}" 
+                        IsGrouped="True"
+                        SelectionMode="None">
+            
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="models:CalendarGroup">
+                    <Grid Padding="24,16" BackgroundColor="{StaticResource BackgroundLight}" ColumnDefinitions="Auto, *, Auto">
+                        <HorizontalStackLayout Spacing="12">
+                            <Border StrokeShape="RoundRectangle 8" 
+                                    HeightRequest="40" 
+                                    WidthRequest="40" 
+                                    BackgroundColor="{StaticResource Primary}" 
+                                    StrokeThickness="0"
+                                    Padding="0">
+                                <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="0">
+                                    <Label Text="{Binding DayName}" FontSize="10" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold" TextTransform="Uppercase"/>
+                                    <Label Text="{Binding DayNumber}" FontSize="18" TextColor="White" HorizontalOptions="Center" FontAttributes="Bold"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <Label Text="{Binding Title}" FontSize="18" FontAttributes="Bold" TextColor="{StaticResource TextPrimaryLight}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        
+                        <Border Grid.Column="2" StrokeShape="RoundRectangle 4" BackgroundColor="#e0f2fe" StrokeThickness="0" Padding="8,4">
+                            <Label Text="{Binding Count, StringFormat='{0} Tasks'}" FontSize="12" TextColor="{StaticResource Primary}" FontAttributes="Bold"/>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:CalendarItem">
+                    <Grid ColumnDefinitions="60, *" Padding="24,12,24,0">
+                        <!-- Time Column -->
+                        <VerticalStackLayout HorizontalOptions="End" Margin="0,0,16,0">
+                            <Label Text="{Binding Time}" FontSize="14" FontAttributes="Bold" TextColor="{StaticResource TextPrimaryLight}" HorizontalOptions="End"/>
+                            <Label Text="{Binding Period}" FontSize="12" TextColor="{StaticResource TextSecondaryLight}" HorizontalOptions="End"/>
+                        </VerticalStackLayout>
+
+                        <!-- Content Column -->
+                        <Border Grid.Column="1" 
+                                StrokeThickness="0" 
+                                BackgroundColor="Transparent" 
+                                Padding="16,0,0,24">
+                            <Grid ColumnDefinitions="Auto, *">
+                                <!-- Vertical Line visual guide -->
+                                <BoxView Color="{StaticResource Gray100}" WidthRequest="2" HorizontalOptions="Start" VerticalOptions="Fill" Margin="-17,0,0,0"/>
+                                
+                                <!-- Content -->
+                                <HorizontalStackLayout Spacing="12">
+                                    <!-- Priority Dot -->
+                                    <BoxView Color="{Binding PriorityColor}" HeightRequest="6" WidthRequest="6" CornerRadius="3" VerticalOptions="Start" Margin="0,8,0,0"/>
+
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="{Binding Title}" FontSize="16" FontAttributes="Bold" TextColor="{StaticResource TextPrimaryLight}"/>
+                                        <Label Text="{Binding Subtitle}" FontSize="14" TextColor="{StaticResource TextSecondaryLight}"/>
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

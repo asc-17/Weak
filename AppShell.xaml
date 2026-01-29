@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Weak.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Weak"
+    xmlns:views="clr-namespace:Weak.Views"
+    Title="Weak"
+    Shell.NavBarIsVisible="False">
+
+    <TabBar>
+        <Tab Title="Home" Icon="home.png"> 
+            <!-- TODO: Add proper icons later, using placeholders or text -->
+            <ShellContent ContentTemplate="{DataTemplate views:HomeView}" Route="HomeView" />
+        </Tab>
+        <Tab Title="Tasks" Icon="tasks.png">
+            <ShellContent ContentTemplate="{DataTemplate views:TasksView}" Route="TasksView" />
+        </Tab>
+        <Tab Title="Calendar" Icon="calendar.png">
+            <ShellContent ContentTemplate="{DataTemplate views:CalendarView}" Route="CalendarView" />
+        </Tab>
+        <Tab Title="Settings" Icon="settings.png">
+            <ShellContent ContentTemplate="{DataTemplate views:SettingsView}" Route="SettingsView" />
+        </Tab>
+    </TabBar>
+
+</Shell>
