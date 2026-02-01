@@ -22,7 +22,6 @@
                        FontFamily="InterSemiBold"
                        FontSize="11" 
                        TextColor="{StaticResource TextSecondaryLight}"
-                       LetterSpacing="0.8"
                        Margin="16,0,0,0"/>
                 
                 <Border StrokeShape="RoundRectangle 12" 
@@ -43,9 +42,9 @@
                                    VerticalOptions="Center" 
                                    TextColor="{StaticResource TextPrimaryLight}"/>
                             <Label Grid.Column="1" 
-                                   Text="&#xE76C;" 
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="16" 
+                                   Text="›" 
+                                   FontFamily="InterBold"
+                                   FontSize="20" 
                                    TextColor="{StaticResource Gray400}"
                                    VerticalOptions="Center"/>
                         </Grid>
@@ -65,9 +64,9 @@
                                        TextColor="{StaticResource Gray400}"/>
                             </VerticalStackLayout>
                             <Label Grid.Column="1" 
-                                   Text="&#xE76C;" 
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="16" 
+                                   Text="›" 
+                                   FontFamily="InterBold"
+                                   FontSize="20" 
                                    TextColor="{StaticResource Gray400}"
                                    VerticalOptions="Center"/>
                         </Grid>
@@ -81,7 +80,6 @@
                        FontFamily="InterSemiBold"
                        FontSize="11" 
                        TextColor="{StaticResource TextSecondaryLight}"
-                       LetterSpacing="0.8"
                        Margin="16,0,0,0"/>
                 
                 <Border StrokeShape="RoundRectangle 12" 
@@ -141,9 +139,9 @@
                                        FontFamily="InterRegular"
                                        FontSize="17" 
                                        TextColor="{StaticResource Gray400}"/>
-                                <Label Text="&#xE76C;" 
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="16" 
+                                <Label Text="›" 
+                                       FontFamily="InterBold"
+                                       FontSize="20" 
                                        TextColor="{StaticResource Gray400}"/>
                             </HorizontalStackLayout>
                         </Grid>
@@ -157,7 +155,6 @@
                        FontFamily="InterSemiBold"
                        FontSize="11" 
                        TextColor="{StaticResource TextSecondaryLight}"
-                       LetterSpacing="0.8"
                        Margin="16,0,0,0"/>
                 
                 <Border StrokeShape="RoundRectangle 12" 
@@ -178,9 +175,9 @@
                                    VerticalOptions="Center" 
                                    TextColor="{StaticResource TextPrimaryLight}"/>
                             <Label Grid.Column="1" 
-                                   Text="&#xE76C;" 
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="16" 
+                                   Text="›" 
+                                   FontFamily="InterBold"
+                                   FontSize="20" 
                                    TextColor="{StaticResource Gray400}"/>
                         </Grid>
                         
@@ -194,9 +191,9 @@
                                    VerticalOptions="Center" 
                                    TextColor="{StaticResource TextPrimaryLight}"/>
                             <Label Grid.Column="1" 
-                                   Text="&#xE76C;" 
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="16" 
+                                   Text="›" 
+                                   FontFamily="InterBold"
+                                   FontSize="20" 
                                    TextColor="{StaticResource Gray400}"/>
                         </Grid>
                     </VerticalStackLayout>

@@ -1,10 +1,16 @@
-﻿namespace Weak
+﻿using Weak.Views;
+
+namespace Weak
 {
     public partial class AppShell : Shell
     {
         public AppShell()
         {
             InitializeComponent();
+            
+            // Register routes for navigation
+            Routing.RegisterRoute("createtask", typeof(CreateTaskPage));
+            Routing.RegisterRoute("edittask", typeof(EditTaskPage));
         }
     }
 }

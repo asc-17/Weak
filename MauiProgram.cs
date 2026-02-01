@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Weak.Views;
 using Weak.ViewModels;
+using Weak.Services;
 
 namespace Weak
 {
@@ -21,11 +22,30 @@ namespace Weak
                     fonts.AddFont("Inter-Bold.ttf", "InterBold");
                 });
 
+        // Services
+        builder.Services.AddSingleton<DatabaseService>();
+        builder.Services.AddSingleton<TaskRepository>();
+        builder.Services.AddSingleton<WeekComputationService>();
+        builder.Services.AddSingleton<CalendarImportService>();
+        
+#if ANDROID
+        builder.Services.AddSingleton<INotificationService, Platforms.Android.Services.NotificationService>();
+#else
+        builder.Services.AddSingleton<INotificationService>(sp => null!);
+#endif
+
+        // ViewModels and Views
         builder.Services.AddSingleton<HomeViewModel>();
         builder.Services.AddSingleton<HomeView>();
 
         builder.Services.AddSingleton<TasksViewModel>();
         builder.Services.AddSingleton<TasksView>();
+
+        builder.Services.AddTransient<CreateTaskViewModel>();
+        builder.Services.AddTransient<CreateTaskPage>();
+
+        builder.Services.AddTransient<EditTaskViewModel>();
+        builder.Services.AddTransient<EditTaskPage>();
 
         builder.Services.AddSingleton<CalendarViewModel>();
         builder.Services.AddSingleton<CalendarView>();
@@ -37,7 +57,9 @@ namespace Weak
     		builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
+            var app = builder.Build();
+
+            return app;
         }
     }
 }

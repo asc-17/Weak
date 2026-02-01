@@ -6,14 +6,15 @@ public class ProgressWidthConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is double progress)
+        if (value is int percent)
         {
-            // Assuming the parent container width is available
-            // We'll use a base width that works well on mobile devices
-            // This will be percentage-based (0-1 becomes 0-100%)
-            return progress * 100; // Will be interpreted as percentage in binding
+            // Return the percentage value which will be used with Grid binding
+            // For a 100% progress, we want it to fill the entire parent
+            // The parent Grid column is set to "*" which takes available space
+            // We'll return a multiplier that represents the percentage
+            return percent / 100.0; // 100 becomes 1.0, 50 becomes 0.5, etc.
         }
-        return 0;
+        return 0.0;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

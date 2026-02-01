@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Weak.ViewModels"
+             x:Class="Weak.Views.EditTaskPage"
+             Title="Edit Task"
+             BackgroundColor="{StaticResource BackgroundLight}"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="0" Spacing="24">
+            
+            <!-- Custom Header -->
+            <Grid Padding="24,16" ColumnDefinitions="Auto, *, Auto" BackgroundColor="#104EB0">
+                <!-- Back Button -->
+                <Border HeightRequest="40" 
+                        WidthRequest="40" 
+                        StrokeShape="RoundRectangle 20"
+                        BackgroundColor="Transparent"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Image Source="back.svg" 
+                           HeightRequest="24"
+                           WidthRequest="24"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                
+                <!-- Page Title -->
+                <Label Grid.Column="1"
+                       Text="Edit Task" 
+                       FontFamily="InterBold"
+                       FontSize="20" 
+                       TextColor="White"
+                       VerticalOptions="Center"
+                       Margin="12,0,0,0"/>
+                
+                <!-- Delete Button -->
+                <Border Grid.Column="2"
+                        HeightRequest="40" 
+                        WidthRequest="40" 
+                        StrokeShape="RoundRectangle 20"
+                        BackgroundColor="Transparent"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Image Source="delete.svg" 
+                           HeightRequest="24"
+                           WidthRequest="24"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DeleteTaskCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <VerticalStackLayout Padding="24,0" Spacing="20">
+            
+            <!-- Task Name -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="TASK NAME" 
+                       FontFamily="InterSemiBold"
+                       FontSize="12" 
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+                <Border StrokeShape="RoundRectangle 10" 
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,10">
+                    <Entry Placeholder="e.g., Read Chapter 5"
+                           Text="{Binding TaskTitle}"
+                           FontFamily="InterRegular"
+                           FontSize="16"
+                           TextColor="{StaticResource TextPrimaryLight}"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Subject -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="SUBJECT" 
+                       FontFamily="InterSemiBold"
+                       FontSize="12" 
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+                <Border StrokeShape="RoundRectangle 10" 
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,10">
+                    <Entry Placeholder="e.g., Mathematics"
+                           Text="{Binding Subject}"
+                           FontFamily="InterRegular"
+                           FontSize="16"
+                           TextColor="{StaticResource TextPrimaryLight}"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Category -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="CATEGORY" 
+                       FontFamily="InterSemiBold"
+                       FontSize="12" 
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+                <Border StrokeShape="RoundRectangle 10" 
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,10">
+                    <Entry Placeholder="e.g., Homework, Exam"
+                           Text="{Binding Category}"
+                           FontFamily="InterRegular"
+                           FontSize="16"
+                           TextColor="{StaticResource TextPrimaryLight}"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Date -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="DATE" 
+                       FontFamily="InterSemiBold"
+                       FontSize="12" 
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+                <Border StrokeShape="RoundRectangle 10" 
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,10">
+                    <DatePicker Date="{Binding TaskDate}"
+                                FontFamily="InterRegular"
+                                FontSize="16"
+                                TextColor="{StaticResource TextPrimaryLight}"
+                                MinimumDate="2024-01-01"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Effort Slider -->
+            <VerticalStackLayout Spacing="8">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Label Text="EFFORT" 
+                           FontFamily="InterSemiBold"
+                           FontSize="12" 
+                           TextColor="{StaticResource TextSecondaryLight}"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Column="1"
+                           FontFamily="InterBold"
+                           FontSize="20"
+                           TextColor="{StaticResource Primary}"
+                           VerticalOptions="Center">
+                        <Label.Text>
+                            <Binding Path="Effort" StringFormat="{}{0:F0}"/>
+                        </Label.Text>
+                    </Label>
+                </Grid>
+                
+                <Border StrokeShape="RoundRectangle 10" 
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,6">
+                    <VerticalStackLayout Spacing="6">
+                        <Slider Minimum="1" 
+                                Maximum="10" 
+                                Value="{Binding Effort}"
+                                MinimumTrackColor="{StaticResource Primary}"
+                                MaximumTrackColor="{StaticResource Gray200}"/>
+                        <Grid ColumnDefinitions="*, *, *">
+                            <Label Text="Low" 
+                                   FontFamily="InterMedium"
+                                   FontSize="11" 
+                                   TextColor="{StaticResource Gray400}"/>
+                            <Label Grid.Column="1"
+                                   Text="Medium" 
+                                   FontFamily="InterMedium"
+                                   FontSize="11" 
+                                   TextColor="{StaticResource Gray400}"
+                                   HorizontalOptions="Center"/>
+                            <Label Grid.Column="2"
+                                   Text="High" 
+                                   FontFamily="InterMedium"
+                                   FontSize="11" 
+                                   TextColor="{StaticResource Gray400}"
+                                   HorizontalOptions="End"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Completion Slider -->
+            <VerticalStackLayout Spacing="8">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Label Text="COMPLETION" 
+                           FontFamily="InterSemiBold"
+                           FontSize="12" 
+                           TextColor="{StaticResource TextSecondaryLight}"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Column="1"
+                           FontFamily="InterBold"
+                           FontSize="20"
+                           TextColor="{StaticResource Primary}"
+                           VerticalOptions="Center">
+                        <Label.Text>
+                            <Binding Path="CompletionPercent" StringFormat="{}{0:F0}%"/>
+                        </Label.Text>
+                    </Label>
+                </Grid>
+                
+                <Border StrokeShape="RoundRectangle 10" 
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,6">
+                    <VerticalStackLayout Spacing="6">
+                        <Slider Minimum="0" 
+                                Maximum="100" 
+                                Value="{Binding CompletionPercent}"
+                                MinimumTrackColor="{StaticResource Primary}"
+                                MaximumTrackColor="{StaticResource Gray200}"/>
+                        <Grid ColumnDefinitions="*, *, *">
+                            <Label Text="0%" 
+                                   FontFamily="InterMedium"
+                                   FontSize="11" 
+                                   TextColor="{StaticResource Gray400}"/>
+                            <Label Grid.Column="1"
+                                   Text="50%" 
+                                   FontFamily="InterMedium"
+                                   FontSize="11" 
+                                   TextColor="{StaticResource Gray400}"
+                                   HorizontalOptions="Center"/>
+                            <Label Grid.Column="2"
+                                   Text="100%" 
+                                   FontFamily="InterMedium"
+                                   FontSize="11" 
+                                   TextColor="{StaticResource Gray400}"
+                                   HorizontalOptions="End"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+            <!-- Save Button -->
+            <Border StrokeShape="RoundRectangle 12"
+                    BackgroundColor="{StaticResource Primary}"
+                    StrokeThickness="0"
+                    Padding="16"
+                    Margin="24,8,24,40">
+                <Label Text="Save Changes" 
+                       FontFamily="InterSemiBold"
+                       FontSize="17" 
+                       TextColor="White"
+                       HorizontalOptions="Center"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SaveTaskCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -39,14 +39,14 @@ public class PulseAnimationBehavior : Behavior<Border>
             {
                 // Pulse animation: scale up and fade slightly
                 await Task.WhenAll(
-                    _border.ScaleTo(1.5, 1000, Easing.SinInOut),
-                    _border.FadeTo(0.3, 1000, Easing.SinInOut)
+                    _border.ScaleToAsync(1.5, 1000, Easing.SinInOut),
+                    _border.FadeToAsync(0.3, 1000, Easing.SinInOut)
                 );
 
                 // Scale back and fade in
                 await Task.WhenAll(
-                    _border.ScaleTo(1.0, 1000, Easing.SinInOut),
-                    _border.FadeTo(1.0, 1000, Easing.SinInOut)
+                    _border.ScaleToAsync(1.0, 1000, Easing.SinInOut),
+                    _border.FadeToAsync(1.0, 1000, Easing.SinInOut)
                 );
             }
             catch

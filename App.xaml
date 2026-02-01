@@ -17,6 +17,12 @@
             <converters:BoolToCheckboxBgConverter x:Key="BoolToCheckboxBgConverter"/>
             <converters:BoolToTextColorConverter x:Key="BoolToTextColorConverter"/>
             <converters:BoolToStrikethroughConverter x:Key="BoolToStrikethroughConverter"/>
+            <converters:ViewModeColorConverter x:Key="ViewModeColorConverter"/>
+            <converters:ViewModeVisibilityConverter x:Key="ViewModeVisibilityConverter"/>
+            <converters:BoolToStrokeConverter x:Key="BoolToStrokeConverter"/>
+            <converters:BoolToStrokeThicknessConverter x:Key="BoolToStrokeThicknessConverter"/>
+            <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
+            <converters:ProgressWidthConverter x:Key="ProgressWidthConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -2,83 +2,63 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Weak.Models;
+using Weak.Services;
 
 namespace Weak.ViewModels;
 
 public partial class HomeViewModel : ObservableObject
 {
+    private readonly WeekComputationService _weekComputation;
+    private readonly TaskRepository _taskRepository;
+
     [ObservableProperty]
-    private string overviewText;
+    private string overviewText = string.Empty;
 
     public ObservableCollection<WeekCard> WeekCards { get; } = new();
 
-    public HomeViewModel()
+    public HomeViewModel(WeekComputationService weekComputation, TaskRepository taskRepository)
     {
-        LoadMockData();
+        _weekComputation = weekComputation;
+        _taskRepository = taskRepository;
     }
 
-    private void LoadMockData()
+    public async Task InitializeAsync()
+    {
+        await LoadWeekDataAsync();
+    }
+
+    public async Task LoadWeekDataAsync()
     {
         WeekCards.Clear();
 
-        // This Week
-        var thisWeek = new WeekCard
+        var thisWeekStart = WeekComputationService.GetWeekStart(DateTime.Today);
+
+        for (int weekOffset = 0; weekOffset < 3; weekOffset++)
         {
-            Title = "This Week",
-            DateRange = GetDateRange(0),
-            Score = 8.2,
-            Intensity = "High Load",
-            Progress = 0.82,
-            Opacity = 1.0,
-            IsCurrentWeek = true
-        };
+            var weekStart = thisWeekStart.AddDays(weekOffset * 7);
+            var weekData = await _weekComputation.ComputeWeekDataAsync(weekStart);
 
-        // Next Week
-        var nextWeek = new WeekCard
-        {
-            Title = "Next Week",
-            DateRange = GetDateRange(1),
-            Score = 4.5,
-            Intensity = "Moderate",
-            Progress = 0.45,
-            Opacity = 0.6,
-            IsCurrentWeek = false
-        };
+            var weekCard = new WeekCard
+            {
+                Title = weekOffset == 0 ? "This Week" : weekOffset == 1 ? "Next Week" : "Week After",
+                DateRange = $"{weekData.StartDate:MMM dd} - {weekData.EndDate:MMM dd}",
+                Score = weekData.Progress,
+                Load = weekData.TotalLoad,
+                Intensity = weekData.Intensity,
+                Progress = weekData.Progress / 10.0,
+                Opacity = weekOffset == 0 ? 1.0 : weekOffset == 1 ? 0.6 : 0.5,
+                IsCurrentWeek = weekOffset == 0,
+                StartDate = weekData.StartDate,
+                EndDate = weekData.EndDate
+            };
 
-        // Week After
-        var weekAfter = new WeekCard
-        {
-            Title = "Week After",
-            DateRange = GetDateRange(2),
-            Score = 1.2,
-            Intensity = "Low",
-            Progress = 0.12,
-            Opacity = 0.5,
-            IsCurrentWeek = false
-        };
+            WeekCards.Add(weekCard);
 
-        WeekCards.Add(thisWeek);
-        WeekCards.Add(nextWeek);
-        WeekCards.Add(weekAfter);
-
-        UpdateOverviewText(thisWeek.Score);
-    }
-
-    private string GetDateRange(int weekOffset)
-    {
-        var start = DateTime.Now.AddDays(weekOffset * 7);
-        var end = start.AddDays(6);
-        return $"{start:MMM dd} - {end:MMM dd}";
-    }
-
-    private void UpdateOverviewText(double currentScore)
-    {
-        if (currentScore > 7)
-            OverviewText = "Your academic load is heavy this week. Prioritize key assignments.";
-        else if (currentScore > 4)
-            OverviewText = "Next week looks manageable.";
-        else
-            OverviewText = "You have room to breathe this week.";
+            if (weekOffset == 0)
+            {
+                OverviewText = _weekComputation.GetRandomSummary(weekData.TotalLoad, weekData.Progress);
+            }
+        }
     }
 
     [RelayCommand]

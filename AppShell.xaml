@@ -6,28 +6,38 @@
     xmlns:views="clr-namespace:Weak.Views"
     Shell.NavBarIsVisible="False"
     Shell.TabBarBackgroundColor="White"
-    Shell.TabBarForegroundColor="#135bec"
-    Shell.TabBarUnselectedColor="#94a3b8">
+    Shell.TabBarForegroundColor="{StaticResource Gray400}"
+    Shell.TabBarTitleColor="{StaticResource Gray400}"
+    Shell.TabBarUnselectedColor="{StaticResource Gray400}">
+
+    <Shell.Resources>
+        <Style TargetType="TabBar">
+            <Setter Property="Shell.TabBarBackgroundColor" Value="White" />
+            <Setter Property="Shell.TabBarForegroundColor" Value="{StaticResource Primary}" />
+            <Setter Property="Shell.TabBarTitleColor" Value="{StaticResource Primary}" />
+            <Setter Property="Shell.TabBarUnselectedColor" Value="{StaticResource Gray400}" />
+        </Style>
+    </Shell.Resources>
 
     <TabBar>
         <ShellContent 
-            Title="Agenda" 
-            Icon="calendar.svg"
-            ContentTemplate="{DataTemplate views:CalendarView}" 
-            Route="CalendarView" />
-            
+            Title="Home" 
+            Icon="home.svg"
+            ContentTemplate="{DataTemplate views:HomeView}" 
+            Route="HomeView" />
+
         <ShellContent 
             Title="To-Do" 
             Icon="check.svg"
             ContentTemplate="{DataTemplate views:TasksView}" 
             Route="TasksView" />
-            
+        
         <ShellContent 
-            Title="Workload" 
-            Icon="chart.svg"
-            ContentTemplate="{DataTemplate views:HomeView}" 
-            Route="HomeView" />
-            
+            Title="Agenda" 
+            Icon="calendar.svg"
+            ContentTemplate="{DataTemplate views:CalendarView}" 
+            Route="CalendarView" />
+
         <ShellContent 
             Title="Settings" 
             Icon="settings.svg"
@@ -36,3 +46,4 @@
     </TabBar>
 
 </Shell>
+

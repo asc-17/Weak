@@ -18,6 +18,11 @@ public class BoolToColorConverter : IValueConverter
                 // Return white text if true, gray text if false
                 return isTrue ? Colors.White : Color.FromArgb("#64748b");
             }
+            else if (param == "selectedday")
+            {
+                // Return light blue background if selected, white if not
+                return isTrue ? Color.FromArgb("#e3f2fd") : Colors.White;
+            }
         }
         return Colors.Transparent;
     }
