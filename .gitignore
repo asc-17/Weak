@@ -4,3 +4,4 @@ obj/
 *.slnx
 .vs/
 Stitch/
+*.user
