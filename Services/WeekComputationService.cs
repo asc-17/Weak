@@ -5,12 +5,15 @@ namespace Weak.Services;
 public class WeekComputationService
 {
     private readonly DatabaseService _database;
+    private readonly SettingsService _settingsService;
 
-    public WeekComputationService(DatabaseService database)
+    public WeekComputationService(DatabaseService database, SettingsService settingsService)
     {
         _database = database;
+        _settingsService = settingsService;
     }
 
+    [Obsolete("Use GetWeekStartAsync to respect the user's week start preference.")]
     public static DateTime GetWeekStart(DateTime date)
     {
         var daysSinceSunday = (int)date.DayOfWeek;
@@ -22,82 +25,97 @@ public class WeekComputationService
         return GetWeekStart(date).AddDays(6);
     }
 
+    public async Task<DateTime> GetWeekStartAsync(DateTime date)
+    {
+        var settings = await _settingsService.GetSettingsAsync();
+        var offset = settings.WeekStartDay == "monday" ? 1 : 0;
+        var daysSinceStart = ((int)date.DayOfWeek - offset + 7) % 7;
+        return date.Date.AddDays(-daysSinceStart);
+    }
+
     public async Task<WeekData> ComputeWeekDataAsync(DateTime weekStart)
     {
         var weekEnd = weekStart.AddDays(6);
-        
+
         var weekTasks = await _database.GetTasksByWeekAsync(weekStart, weekEnd);
-        
+
         var overdueTasks = new List<TaskItem>();
+#pragma warning disable CS0618
         if (weekStart.Date == GetWeekStart(DateTime.Today))
+#pragma warning restore CS0618
         {
             overdueTasks = await _database.GetOverdueTasksAsync();
         }
-        
+
         var allTasks = weekTasks.Concat(overdueTasks).ToList();
-        
-        var totalLoad = CalculateTotalLoad(allTasks);
-        var progress = CalculateProgress(allTasks);
-        var intensity = GetIntensity(totalLoad);
-        
+
+        var loadScore = CalculateLoadScore(allTasks);
+        var weightedProgress = CalculateWeightedProgress(allTasks);
+        var intensity = GetIntensity(loadScore);
+
         return new WeekData
         {
             StartDate = weekStart,
             EndDate = weekEnd,
-            TotalLoad = totalLoad,
-            Progress = progress,
+            LoadScore = loadScore,
+            WeightedProgress = weightedProgress,
             Intensity = intensity,
             TaskCount = allTasks.Count
         };
     }
 
-    private double CalculateTotalLoad(List<TaskItem> tasks)
+    public double CalculateLoadScore(List<TaskItem> tasks)
     {
         if (!tasks.Any())
-            return 0;
-        
-        return tasks.Sum(t => t.Effort);
-    }
-
-    private double CalculateProgress(List<TaskItem> tasks)
-    {
-        if (!tasks.Any())
-            return 0;
+            return 0.0;
 
         var totalEffort = tasks.Sum(t => t.Effort);
-        
         if (totalEffort == 0)
-            return 0;
+            return 0.0;
+
+        var weightedRemaining = tasks.Sum(t => t.Effort * (1.0 - t.CompletionPercent / 100.0));
+        return (weightedRemaining / totalEffort) * 10.0;
+    }
+
+    public double CalculateWeightedProgress(List<TaskItem> tasks)
+    {
+        if (!tasks.Any())
+            return 0.0;
+
+        var totalEffort = tasks.Sum(t => t.Effort);
+        if (totalEffort == 0)
+            return 0.0;
 
         var weightedCompletion = tasks.Sum(t => t.Effort * (t.CompletionPercent / 100.0));
-        
-        return (weightedCompletion / totalEffort) * 10.0;
+        return weightedCompletion / totalEffort;
     }
 
-    private string GetIntensity(double load)
+    public string GetIntensity(double loadScore)
     {
-        if (load < 20)
+        if (loadScore <= 3.0)
             return "Low";
-        else if (load < 40)
+        else if (loadScore <= 6.0)
             return "Moderate";
+        else if (loadScore <= 8.5)
+            return "High";
         else
-            return "High Load";
+            return "Critical";
     }
 
-    public string GetRandomSummary(double load, double progress)
+    public string GetRandomSummary(double loadScore, double weightedProgress)
     {
         var summaries = new List<string>();
 
-        if (load >= 40)
+        if (loadScore >= 8.0)
         {
-            if (progress >= 7)
+            if (weightedProgress >= 0.7)
                 summaries.AddRange(new[]
                 {
                     "Heavy week, but you're crushing it.",
                     "High load, strong progress. Keep going.",
                     "Demanding week. You're handling it well."
                 });
-            else if (progress >= 4)
+            else if (weightedProgress >= 0.4)
                 summaries.AddRange(new[]
                 {
                     "Your academic load is heavy this week. Prioritize key assignments.",
@@ -112,16 +130,16 @@ public class WeekComputationService
                     "High load, low momentum. Start with one task."
                 });
         }
-        else if (load >= 20)
+        else if (loadScore >= 4.0)
         {
-            if (progress >= 7)
+            if (weightedProgress >= 0.7)
                 summaries.AddRange(new[]
                 {
                     "Balanced week, great progress.",
                     "Next week looks manageable.",
                     "Steady load. You're on track."
                 });
-            else if (progress >= 4)
+            else if (weightedProgress >= 0.4)
                 summaries.AddRange(new[]
                 {
                     "Moderate workload. Keep momentum going.",
@@ -138,7 +156,7 @@ public class WeekComputationService
         }
         else
         {
-            if (progress >= 7)
+            if (weightedProgress >= 0.7)
                 summaries.AddRange(new[]
                 {
                     "Light week, excellent progress.",
@@ -162,8 +180,8 @@ public class WeekData
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-    public double TotalLoad { get; set; }
-    public double Progress { get; set; }
+    public double LoadScore { get; set; }
+    public double WeightedProgress { get; set; }
     public string Intensity { get; set; } = string.Empty;
     public int TaskCount { get; set; }
 }

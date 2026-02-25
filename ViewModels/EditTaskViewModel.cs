@@ -92,7 +92,7 @@ public partial class EditTaskViewModel : ObservableObject
         _currentTask.Category = string.IsNullOrWhiteSpace(category) ? null : category;
         _currentTask.Deadline = taskDate;
         _currentTask.Effort = (int)Math.Round(effort);
-        _currentTask.CompletionPercent = (int)Math.Round(completionPercent);
+        _currentTask.CompletionPercent = completionPercent;
 
         await _taskRepository.SaveTaskAsync(_currentTask);
 

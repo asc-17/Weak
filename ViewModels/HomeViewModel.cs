@@ -31,7 +31,7 @@ public partial class HomeViewModel : ObservableObject
     {
         WeekCards.Clear();
 
-        var thisWeekStart = WeekComputationService.GetWeekStart(DateTime.Today);
+        var thisWeekStart = await _weekComputation.GetWeekStartAsync(DateTime.Today);
 
         for (int weekOffset = 0; weekOffset < 3; weekOffset++)
         {
@@ -42,10 +42,9 @@ public partial class HomeViewModel : ObservableObject
             {
                 Title = weekOffset == 0 ? "This Week" : weekOffset == 1 ? "Next Week" : "Week After",
                 DateRange = $"{weekData.StartDate:MMM dd} - {weekData.EndDate:MMM dd}",
-                Score = weekData.Progress,
-                Load = weekData.TotalLoad,
+                LoadScore = weekData.LoadScore,
+                WeightedProgress = weekData.WeightedProgress,
                 Intensity = weekData.Intensity,
-                Progress = weekData.Progress / 10.0,
                 Opacity = weekOffset == 0 ? 1.0 : weekOffset == 1 ? 0.6 : 0.5,
                 IsCurrentWeek = weekOffset == 0,
                 StartDate = weekData.StartDate,
@@ -56,7 +55,7 @@ public partial class HomeViewModel : ObservableObject
 
             if (weekOffset == 0)
             {
-                OverviewText = _weekComputation.GetRandomSummary(weekData.TotalLoad, weekData.Progress);
+                OverviewText = _weekComputation.GetRandomSummary(weekData.LoadScore, weekData.WeightedProgress);
             }
         }
     }
@@ -67,3 +66,4 @@ public partial class HomeViewModel : ObservableObject
         card.IsExpanded = !card.IsExpanded;
     }
 }
+

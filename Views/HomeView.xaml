@@ -110,7 +110,7 @@
                                                TextColor="{StaticResource TextPrimaryLight}"
                                                VerticalOptions="Center">
                                             <Label.Text>
-                                                <Binding Path="Score" StringFormat="{}{0:F1}"/>
+                                                <Binding Path="LoadScore" StringFormat="{}{0:F1}"/>
                                             </Label.Text>
                                         </Label>
                                         <Label Text="/10" 
@@ -138,7 +138,7 @@
                                                     StrokeThickness="0"/>
                                             
                                             <!-- Progress Fill -->
-                                            <ProgressBar Progress="{Binding Progress}"
+                                            <ProgressBar Progress="{Binding WeightedProgress}"
                                                          ProgressColor="{StaticResource Primary}"
                                                          HeightRequest="12"
                                                          VerticalOptions="Center"

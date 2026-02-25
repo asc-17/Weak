@@ -12,20 +12,14 @@ public partial class WeekCard : ObservableObject
     private string dateRange = string.Empty;
 
     [ObservableProperty]
-    private double score;
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LoadColor), nameof(LoadProgress))]
-    private double load;
+    private double loadScore;
 
     [ObservableProperty]
     private string intensity = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ProgressRect))]
-    private double progress;
-
-    public Rect ProgressRect => new Rect(0, 0.5, Progress, 12);
+    private double weightedProgress;
 
     [ObservableProperty]
     private bool isExpanded;
@@ -40,19 +34,20 @@ public partial class WeekCard : ObservableObject
     {
         get
         {
-            if (Load < 20)
+            if (LoadScore <= 3.0)
                 return Color.FromArgb("#22c55e");
-            else if (Load < 40)
+            else if (LoadScore <= 6.0)
                 return Color.FromArgb("#eab308");
+            else if (LoadScore <= 8.5)
+                return Color.FromArgb("#f97316");
             else
                 return Color.FromArgb("#ef4444");
         }
     }
 
-    // Normalize load to 0-1 range for ProgressBar
-    // Assuming max load of 100 (10 tasks × effort of 10 each)
-    public double LoadProgress => Math.Min(Load / 100.0, 1.0);
+    public double LoadProgress => Math.Min(LoadScore / 10.0, 1.0);
 
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
 }
+

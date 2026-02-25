@@ -25,6 +25,7 @@ namespace Weak
         // Services
         builder.Services.AddSingleton<DatabaseService>();
         builder.Services.AddSingleton<TaskRepository>();
+        builder.Services.AddSingleton<SettingsService>();
         builder.Services.AddSingleton<WeekComputationService>();
         builder.Services.AddSingleton<CalendarImportService>();
         

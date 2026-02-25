@@ -9,6 +9,6 @@ public class CalendarItem
     public string PriorityColor { get; set; }
     public bool IsPriority { get; set; }
     public int Effort { get; set; }
-    public int CompletionPercent { get; set; }
+    public double CompletionPercent { get; set; }
     public string EffortBarColor { get; set; } = "#4CAF50";
 }

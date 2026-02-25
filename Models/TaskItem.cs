@@ -29,8 +29,8 @@ public class TaskItem : ObservableObject
         }
     }
 
-    private int _completionPercent;
-    public int CompletionPercent
+    private double _completionPercent;
+    public double CompletionPercent
     {
         get => _completionPercent;
         set
@@ -85,6 +85,58 @@ public class TaskItem : ObservableObject
         get => _externalId;
         set => SetProperty(ref _externalId, value);
     }
+
+    private bool _isDayOnly;
+    public bool IsDayOnly
+    {
+        get => _isDayOnly;
+        set => SetProperty(ref _isDayOnly, value);
+    }
+
+    private string _recurrenceType = "none";
+    public string RecurrenceType
+    {
+        get => _recurrenceType;
+        set
+        {
+            if (SetProperty(ref _recurrenceType, value))
+                OnPropertyChanged(nameof(IsRecurring));
+        }
+    }
+
+    private int _recurrenceInterval;
+    public int RecurrenceInterval
+    {
+        get => _recurrenceInterval;
+        set => SetProperty(ref _recurrenceInterval, value);
+    }
+
+    private int? _parentListId;
+    public int? ParentListId
+    {
+        get => _parentListId;
+        set => SetProperty(ref _parentListId, value);
+    }
+
+    private int? _recurrenceParentId;
+    public int? RecurrenceParentId
+    {
+        get => _recurrenceParentId;
+        set => SetProperty(ref _recurrenceParentId, value);
+    }
+
+    private DateTime _createdAt = DateTime.UtcNow;
+    public DateTime CreatedAt
+    {
+        get => _createdAt;
+        set => SetProperty(ref _createdAt, value);
+    }
+
+    [Ignore]
+    public bool IsRecurring => RecurrenceType != "none";
+
+    [Ignore]
+    public bool IsPending => Deadline.Date < DateTime.Today && CompletionPercent < 100;
 
     [Ignore]
     public bool IsCompleted
