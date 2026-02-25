@@ -188,6 +188,108 @@
                 </Border>
             </VerticalStackLayout>
 
+            <!-- Recurrence -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="RECURRENCE"
+                       FontFamily="InterSemiBold"
+                       FontSize="12"
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+                <FlexLayout Wrap="Wrap" JustifyContent="Start" Gap="8">
+                    <Border StrokeShape="RoundRectangle 8"
+                            BackgroundColor="{Binding IsNoneSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                            Stroke="Transparent" Padding="12,6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="none"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="None" FontFamily="InterMedium" FontSize="13"
+                               TextColor="{Binding IsNoneSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 8"
+                            BackgroundColor="{Binding IsDailySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                            Stroke="Transparent" Padding="12,6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="daily"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Daily" FontFamily="InterMedium" FontSize="13"
+                               TextColor="{Binding IsDailySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 8"
+                            BackgroundColor="{Binding IsWeeklySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                            Stroke="Transparent" Padding="12,6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="weekly"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Weekly" FontFamily="InterMedium" FontSize="13"
+                               TextColor="{Binding IsWeeklySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 8"
+                            BackgroundColor="{Binding IsMonthlySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                            Stroke="Transparent" Padding="12,6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="monthly"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Monthly" FontFamily="InterMedium" FontSize="13"
+                               TextColor="{Binding IsMonthlySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 8"
+                            BackgroundColor="{Binding IsCustomSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                            Stroke="Transparent" Padding="12,6">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="custom"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Custom" FontFamily="InterMedium" FontSize="13"
+                               TextColor="{Binding IsCustomSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                    </Border>
+                </FlexLayout>
+                <Border IsVisible="{Binding IsCustomSelected}"
+                        StrokeShape="RoundRectangle 10"
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,10">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Every N days"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextSecondaryLight}"
+                               VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Text="{Binding RecurrenceInterval}"
+                               Keyboard="Numeric"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"
+                               HorizontalTextAlignment="End"
+                               WidthRequest="60"/>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Visibility -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="VISIBILITY"
+                       FontFamily="InterSemiBold"
+                       FontSize="12"
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+                <Border StrokeShape="RoundRectangle 10"
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,10">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="Show only in Day view"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding IsDayOnly}"
+                                OnColor="{StaticResource Primary}"
+                                ThumbColor="White"/>
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
             <!-- Completion Slider -->
             <VerticalStackLayout Spacing="8">
                 <Grid ColumnDefinitions="*, Auto">

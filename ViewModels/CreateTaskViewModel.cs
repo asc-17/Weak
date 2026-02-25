@@ -25,10 +25,40 @@ public partial class CreateTaskViewModel : ObservableObject
     [ObservableProperty]
     private double effort = 5;
 
+    [ObservableProperty]
+    private string recurrenceType = "none";
+
+    [ObservableProperty]
+    private int recurrenceInterval = 1;
+
+    [ObservableProperty]
+    private bool isDayOnly = false;
+
+    public bool IsNoneSelected => RecurrenceType == "none";
+    public bool IsDailySelected => RecurrenceType == "daily";
+    public bool IsWeeklySelected => RecurrenceType == "weekly";
+    public bool IsMonthlySelected => RecurrenceType == "monthly";
+    public bool IsCustomSelected => RecurrenceType == "custom";
+
     public CreateTaskViewModel(TaskRepository taskRepository, INotificationService notificationService)
     {
         _taskRepository = taskRepository;
         _notificationService = notificationService;
+    }
+
+    [RelayCommand]
+    private void SetRecurrence(string type)
+    {
+        RecurrenceType = type;
+    }
+
+    partial void OnRecurrenceTypeChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsNoneSelected));
+        OnPropertyChanged(nameof(IsDailySelected));
+        OnPropertyChanged(nameof(IsWeeklySelected));
+        OnPropertyChanged(nameof(IsMonthlySelected));
+        OnPropertyChanged(nameof(IsCustomSelected));
     }
 
     [RelayCommand]
@@ -58,7 +88,10 @@ public partial class CreateTaskViewModel : ObservableObject
             Effort = (int)Math.Round(effort),
             CompletionPercent = 0,
             Source = TaskSource.Manual,
-            SubjectColor = GetRandomColor()
+            SubjectColor = GetRandomColor(),
+            RecurrenceType = recurrenceType,
+            RecurrenceInterval = recurrenceInterval,
+            IsDayOnly = isDayOnly
         };
 
         await _taskRepository.SaveTaskAsync(newTask);

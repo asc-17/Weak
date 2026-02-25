@@ -132,6 +132,14 @@ public class TaskItem : ObservableObject
         set => SetProperty(ref _createdAt, value);
     }
 
+    private bool _isExpanded;
+    [Ignore]
+    public bool IsExpanded
+    {
+        get => _isExpanded;
+        set => SetProperty(ref _isExpanded, value);
+    }
+
     [Ignore]
     public bool IsRecurring => RecurrenceType != "none";
 

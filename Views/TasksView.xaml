@@ -50,8 +50,18 @@
                         </Label.Text>
                     </Label>
                     
-                    <CollectionView ItemsSource="{Binding Tasks}"
-                                    SelectionMode="None">
+                    <CollectionView ItemsSource="{Binding TaskGroups}"
+                                    SelectionMode="None"
+                                    IsGrouped="True">
+                        <CollectionView.GroupHeaderTemplate>
+                            <DataTemplate x:DataType="models:TaskGroup">
+                                <Label Text="{Binding Header}"
+                                       FontFamily="InterSemiBold"
+                                       FontSize="11"
+                                       TextColor="{StaticResource TextSecondaryLight}"
+                                       Padding="0,16,0,4"/>
+                            </DataTemplate>
+                        </CollectionView.GroupHeaderTemplate>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:TaskItem">
                                 <SwipeView>
@@ -63,55 +73,86 @@
                                                        CommandParameter="{Binding .}"/>
                                         </SwipeItems>
                                     </SwipeView.RightItems>
-                                    
-                                    <Grid ColumnDefinitions="Auto, *, Auto" 
-                                          ColumnSpacing="12"
-                                          Padding="0,12"
-                                          BackgroundColor="White"
-                                          RowDefinitions="Auto">
-                                        <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=EditTaskCommand}"
-                                                                  CommandParameter="{Binding .}"/>
-                                        </Grid.GestureRecognizers>
-                                        
-                                        <!-- Checkbox -->
-                                        <Border HeightRequest="24" 
-                                                WidthRequest="24" 
-                                                StrokeShape="Ellipse"
-                                                Stroke="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxColorConverter}}"
-                                                BackgroundColor="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxBgConverter}}"
-                                                StrokeThickness="2"
-                                                VerticalOptions="Center">
-                                            <Label Text="&#x2713;" 
-                                                   FontSize="14"
-                                                   FontAttributes="Bold"
-                                                   TextColor="White"
-                                                   HorizontalOptions="Center"
-                                                   VerticalOptions="Center"
-                                                   IsVisible="{Binding IsCompleted}"/>
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=ToggleTaskCommand}" 
+
+                                    <VerticalStackLayout BackgroundColor="White" Spacing="0">
+                                        <Grid ColumnDefinitions="Auto, *, Auto, Auto"
+                                              ColumnSpacing="10"
+                                              Padding="0,12,12,4">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=ToggleExpandCommand}"
                                                                       CommandParameter="{Binding .}"/>
-                                            </Border.GestureRecognizers>
-                                        </Border>
-                                        
-                                        <!-- Task Title -->
-                                        <Label Grid.Column="1" 
-                                               Text="{Binding Title}" 
-                                               FontFamily="InterRegular"
-                                               FontSize="17" 
-                                               TextColor="{Binding IsCompleted, Converter={StaticResource BoolToTextColorConverter}}"
-                                               TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethroughConverter}}"
-                                               VerticalOptions="Center"/>
-                                        
-                                        <!-- Due Date / Status -->
-                                        <Label Grid.Column="2" 
-                                               Text="{Binding DeadlineText}" 
-                                               FontFamily="InterMedium"
-                                               FontSize="13" 
-                                               TextColor="{Binding DeadlineColor}"
-                                               VerticalOptions="Center"/>
-                                    </Grid>
+                                            </Grid.GestureRecognizers>
+
+                                            <!-- Checkbox -->
+                                            <Border HeightRequest="24"
+                                                    WidthRequest="24"
+                                                    StrokeShape="Ellipse"
+                                                    Stroke="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxColorConverter}}"
+                                                    BackgroundColor="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxBgConverter}}"
+                                                    StrokeThickness="2"
+                                                    VerticalOptions="Center">
+                                                <Label Text="&#x2713;"
+                                                       FontSize="14"
+                                                       FontAttributes="Bold"
+                                                       TextColor="White"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       IsVisible="{Binding IsCompleted}"/>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=ToggleTaskCommand}"
+                                                                          CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                            </Border>
+
+                                            <!-- Task Title -->
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Title}"
+                                                   FontFamily="InterRegular"
+                                                   FontSize="17"
+                                                   TextColor="{Binding IsCompleted, Converter={StaticResource BoolToTextColorConverter}}"
+                                                   TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethroughConverter}}"
+                                                   VerticalOptions="Center"/>
+
+                                            <!-- Effort badge -->
+                                            <Border Grid.Column="2"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    BackgroundColor="#EFF6FF"
+                                                    Stroke="Transparent"
+                                                    Padding="6,2"
+                                                    VerticalOptions="Center">
+                                                <Label Text="{Binding Effort}"
+                                                       FontFamily="InterSemiBold"
+                                                       FontSize="12"
+                                                       TextColor="#104EB0"/>
+                                            </Border>
+
+                                            <!-- Due Date / Status -->
+                                            <Label Grid.Column="3"
+                                                   Text="{Binding DeadlineText}"
+                                                   FontFamily="InterMedium"
+                                                   FontSize="13"
+                                                   TextColor="{Binding DeadlineColor}"
+                                                   VerticalOptions="Center"/>
+                                        </Grid>
+
+                                        <!-- Expansion: completion slider -->
+                                        <Grid ColumnDefinitions="*, Auto"
+                                              Padding="36,0,12,10"
+                                              IsVisible="{Binding IsExpanded}">
+                                            <Slider Value="{Binding CompletionPercent}"
+                                                    Minimum="0"
+                                                    Maximum="100"
+                                                    MinimumTrackColor="{StaticResource Primary}"
+                                                    MaximumTrackColor="{StaticResource Gray200}"/>
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding CompletionPercent, StringFormat='{0:F0}%'}"
+                                                   FontFamily="InterMedium"
+                                                   FontSize="13"
+                                                   TextColor="{StaticResource Primary}"
+                                                   VerticalOptions="Center"
+                                                   WidthRequest="40"/>
+                                        </Grid>
+                                    </VerticalStackLayout>
                                 </SwipeView>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
