@@ -26,15 +26,18 @@
                         WidthRequest="40" 
                         Stroke="{StaticResource Gray200}"
                         StrokeThickness="1"
-                        BackgroundColor="White"
+                        BackgroundColor="{StaticResource Primary}"
                         VerticalOptions="Center"
                         HorizontalOptions="End">
-                    <Image Source="omega.png" 
-                           HeightRequest="40"
-                           WidthRequest="40"
-                           Aspect="AspectFill"
-                           HorizontalOptions="Center" 
+                    <Label Text="{Binding UserInitial}"
+                           FontFamily="InterBold"
+                           FontSize="16"
+                           TextColor="White"
+                           HorizontalOptions="Center"
                            VerticalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToSettingsCommand}"/>
+                    </Border.GestureRecognizers>
                 </Border>
             </Grid>
 
@@ -165,14 +168,14 @@
                                         
                                         <Border Grid.Column="1" 
                                                 StrokeShape="RoundRectangle 4"
-                                                BackgroundColor="#ecf2ff"
+                                                BackgroundColor="{Binding Intensity, Converter={StaticResource IntensityBgColorConverter}}"
                                                 StrokeThickness="0"
                                                 Padding="8,2"
                                                 HorizontalOptions="End">
                                             <Label Text="{Binding Intensity}" 
                                                    FontFamily="InterBold"
                                                    FontSize="11" 
-                                                   TextColor="{StaticResource Primary}"/>
+                                                   TextColor="{Binding Intensity, Converter={StaticResource IntensityTextColorConverter}}"/>
                                         </Border>
                                     </Grid>
                                 </VerticalStackLayout>

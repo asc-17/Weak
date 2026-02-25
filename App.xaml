@@ -24,6 +24,8 @@
             <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
             <converters:ProgressWidthConverter x:Key="ProgressWidthConverter"/>
             <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+            <converters:IntensityBgColorConverter x:Key="IntensityBgColorConverter"/>
+            <converters:IntensityTextColorConverter x:Key="IntensityTextColorConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

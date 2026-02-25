@@ -10,20 +10,30 @@ public partial class HomeViewModel : ObservableObject
 {
     private readonly WeekComputationService _weekComputation;
     private readonly TaskRepository _taskRepository;
+    private readonly SettingsService _settingsService;
 
     [ObservableProperty]
     private string overviewText = string.Empty;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UserInitial))]
+    private string userName = string.Empty;
+
+    public string UserInitial => string.IsNullOrWhiteSpace(UserName) ? "?" : UserName[0].ToString().ToUpper();
+
     public ObservableCollection<WeekCard> WeekCards { get; } = new();
 
-    public HomeViewModel(WeekComputationService weekComputation, TaskRepository taskRepository)
+    public HomeViewModel(WeekComputationService weekComputation, TaskRepository taskRepository, SettingsService settingsService)
     {
         _weekComputation = weekComputation;
         _taskRepository = taskRepository;
+        _settingsService = settingsService;
     }
 
     public async Task InitializeAsync()
     {
+        var settings = await _settingsService.GetSettingsAsync();
+        UserName = settings.Name ?? string.Empty;
         await LoadWeekDataAsync();
     }
 
@@ -64,6 +74,12 @@ public partial class HomeViewModel : ObservableObject
     private void ToggleExpand(WeekCard card)
     {
         card.IsExpanded = !card.IsExpanded;
+    }
+
+    [RelayCommand]
+    private async Task NavigateToSettings()
+    {
+        await Shell.Current.GoToAsync("//SettingsView");
     }
 }
 
