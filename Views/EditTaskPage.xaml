@@ -194,10 +194,10 @@
                        FontFamily="InterSemiBold"
                        FontSize="12"
                        TextColor="{StaticResource TextSecondaryLight}"/>
-                <FlexLayout Wrap="Wrap" JustifyContent="Start" Gap="8">
+                <FlexLayout Wrap="Wrap" JustifyContent="Start">
                     <Border StrokeShape="RoundRectangle 8"
                             BackgroundColor="{Binding IsNoneSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
-                            Stroke="Transparent" Padding="12,6">
+                            Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="none"/>
                         </Border.GestureRecognizers>
@@ -206,7 +206,7 @@
                     </Border>
                     <Border StrokeShape="RoundRectangle 8"
                             BackgroundColor="{Binding IsDailySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
-                            Stroke="Transparent" Padding="12,6">
+                            Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="daily"/>
                         </Border.GestureRecognizers>
@@ -215,7 +215,7 @@
                     </Border>
                     <Border StrokeShape="RoundRectangle 8"
                             BackgroundColor="{Binding IsWeeklySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
-                            Stroke="Transparent" Padding="12,6">
+                            Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="weekly"/>
                         </Border.GestureRecognizers>
@@ -224,7 +224,7 @@
                     </Border>
                     <Border StrokeShape="RoundRectangle 8"
                             BackgroundColor="{Binding IsMonthlySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
-                            Stroke="Transparent" Padding="12,6">
+                            Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="monthly"/>
                         </Border.GestureRecognizers>
@@ -233,7 +233,7 @@
                     </Border>
                     <Border StrokeShape="RoundRectangle 8"
                             BackgroundColor="{Binding IsCustomSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
-                            Stroke="Transparent" Padding="12,6">
+                            Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="custom"/>
                         </Border.GestureRecognizers>
