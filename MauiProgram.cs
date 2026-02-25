@@ -30,6 +30,7 @@ namespace Weak
         builder.Services.AddSingleton<SettingsService>();
         builder.Services.AddSingleton<WeekComputationService>();
         builder.Services.AddSingleton<CalendarImportService>();
+        builder.Services.AddSingleton<RecurrenceService>();
         
 #if ANDROID
         builder.Services.AddSingleton<INotificationService, Platforms.Android.Services.NotificationService>();

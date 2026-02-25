@@ -11,6 +11,7 @@ public partial class CreateTaskViewModel : ObservableObject
     private readonly TaskRepository _taskRepository;
     private readonly INotificationService _notificationService;
     private readonly TaskListRepository _taskListRepository;
+    private readonly RecurrenceService _recurrenceService;
 
     [ObservableProperty]
     private string taskTitle = string.Empty;
@@ -47,11 +48,12 @@ public partial class CreateTaskViewModel : ObservableObject
 
     public ObservableCollection<TaskList> AvailableLists { get; } = new();
 
-    public CreateTaskViewModel(TaskRepository taskRepository, INotificationService notificationService, TaskListRepository taskListRepository)
+    public CreateTaskViewModel(TaskRepository taskRepository, INotificationService notificationService, TaskListRepository taskListRepository, RecurrenceService recurrenceService)
     {
         _taskRepository = taskRepository;
         _notificationService = notificationService;
         _taskListRepository = taskListRepository;
+        _recurrenceService = recurrenceService;
     }
 
     public async Task InitializeAsync()
@@ -114,6 +116,14 @@ public partial class CreateTaskViewModel : ObservableObject
         };
 
         await _taskRepository.SaveTaskAsync(newTask);
+
+        if (newTask.IsRecurring)
+        {
+            var count = RecurrenceService.GetInstanceCount(newTask);
+            var instances = await _recurrenceService.GenerateInstancesAsync(newTask, count);
+            foreach (var instance in instances)
+                await _taskRepository.SaveTaskAsync(instance);
+        }
 
         if (_notificationService != null)
         {
