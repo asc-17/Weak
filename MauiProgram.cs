@@ -34,6 +34,10 @@ namespace Weak
         
 #if ANDROID
         builder.Services.AddSingleton<INotificationService, Platforms.Android.Services.NotificationService>();
+#elif IOS
+        builder.Services.AddSingleton<INotificationService, Platforms.iOS.Services.NotificationService>();
+#elif MACCATALYST
+        builder.Services.AddSingleton<INotificationService, Platforms.MacCatalyst.Services.NotificationService>();
 #else
         builder.Services.AddSingleton<INotificationService>(sp => null!);
 #endif

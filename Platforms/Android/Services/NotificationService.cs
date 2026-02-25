@@ -15,13 +15,15 @@ public class NotificationService : INotificationService
 
     private readonly NotificationManagerCompat _notificationManager;
     private readonly Context _context;
+    private readonly SettingsService _settingsService;
 
-    public NotificationService()
+    public NotificationService(SettingsService settingsService)
     {
         _context = Platform.CurrentActivity?.ApplicationContext 
             ?? throw new InvalidOperationException("Android context not available");
-        
+
         _notificationManager = NotificationManagerCompat.From(_context);
+        _settingsService = settingsService;
         CreateNotificationChannel();
     }
 
@@ -39,12 +41,16 @@ public class NotificationService : INotificationService
         }
     }
 
-    public Task ScheduleTaskDeadlineNotificationAsync(TaskItem task)
+    public async Task ScheduleTaskDeadlineNotificationAsync(TaskItem task)
     {
+        var settings = await _settingsService.GetSettingsAsync();
+        if (!settings.NotifDeadlineReminder)
+            return;
+
         var notificationTime = task.Deadline.AddHours(-24);
-        
+
         if (notificationTime <= DateTime.Now)
-            return Task.CompletedTask;
+            return;
 
         var builder = new NotificationCompat.Builder(_context, ChannelId)
             .SetSmallIcon(global::Android.Resource.Drawable.IcMenuInfoDetails)
@@ -75,24 +81,32 @@ public class NotificationService : INotificationService
         {
             alarmManager?.SetExact(AlarmType.RtcWakeup, triggerTime, pendingIntent);
         }
-
-        return Task.CompletedTask;
     }
 
-    public Task ScheduleWeeklyLoadWarningAsync(DateTime weekStart, double load)
+    public async Task ScheduleWeeklyLoadWarningAsync(DateTime weekStart, double load)
     {
-        if (load < 40)
-            return Task.CompletedTask;
+        var settings = await _settingsService.GetSettingsAsync();
+        if (!settings.NotifWeeklyOverview)
+            return;
 
-        var saturday = weekStart.AddDays(-1);
-        var notificationTime = new DateTime(saturday.Year, saturday.Month, saturday.Day, 9, 0, 0);
+        if (load < 3.0)
+            return;
+
+        // Fire Sunday at 7 PM before the upcoming week
+        // weekStart is Monday if week starts Monday, Sunday if Sunday
+        var sunday = weekStart.DayOfWeek == DayOfWeek.Monday
+            ? weekStart.AddDays(-1)   // the Sunday before Monday start
+            : weekStart;              // weekStart is already Sunday
+        var notificationTime = new DateTime(sunday.Year, sunday.Month, sunday.Day, 19, 0, 0);
 
         if (notificationTime <= DateTime.Now)
-            return Task.CompletedTask;
+            return;
 
-        var message = load >= 60 
-            ? "Heavy workload ahead. Plan your week strategically." 
-            : "Moderate to high workload next week. Stay organized.";
+        var message = load >= 8.0 
+            ? "Critical workload ahead. Plan your week strategically." 
+            : load >= 6.0
+                ? "Heavy workload next week. Stay organized."
+                : "Moderate workload next week. You've got this.";
 
         var alarmManager = (AlarmManager?)_context.GetSystemService(Context.AlarmService);
         var intent = new Intent(_context, typeof(NotificationReceiver));
@@ -116,8 +130,6 @@ public class NotificationService : INotificationService
         {
             alarmManager?.SetExact(AlarmType.RtcWakeup, triggerTime, pendingIntent);
         }
-
-        return Task.CompletedTask;
     }
 
     public Task CancelNotificationAsync(int notificationId)
