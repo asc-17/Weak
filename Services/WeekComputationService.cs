@@ -102,6 +102,55 @@ public class WeekComputationService
             return "Critical";
     }
 
+    public async Task<double> ComputePersonalAverageLoadScoreAsync()
+    {
+        var today = DateTime.Today;
+        var weekStart = await GetWeekStartAsync(today);
+
+        // Look back up to 52 past weeks
+        var pastWeekScores = new List<double>();
+        for (int i = 1; i <= 52; i++)
+        {
+            var pastWeekStart = weekStart.AddDays(-7 * i);
+            var pastWeekEnd = pastWeekStart.AddDays(6);
+
+            if (pastWeekEnd >= today)
+                continue;
+
+            var tasks = await _database.GetTasksByWeekAsync(pastWeekStart, pastWeekEnd);
+            if (tasks.Count == 0)
+                continue;
+
+            pastWeekScores.Add(CalculateLoadScore(tasks));
+        }
+
+        if (pastWeekScores.Count == 0)
+            return -1; // Not enough data
+
+        return pastWeekScores.Average();
+    }
+
+    public string GetRelativeLoadLabel(double currentLoadScore, double averageLoadScore)
+    {
+        if (averageLoadScore < 0)
+            return string.Empty;
+
+        if (averageLoadScore < 0.1)
+            return currentLoadScore > 0.1
+                ? "Heavier than your usual empty weeks."
+                : string.Empty;
+
+        var ratio = (currentLoadScore - averageLoadScore) / averageLoadScore;
+        var percent = Math.Abs(ratio) * 100;
+
+        if (ratio > 0.1)
+            return $"{percent:F0}% heavier than your usual";
+        else if (ratio < -0.1)
+            return $"{percent:F0}% lighter than your usual";
+        else
+            return "About the same as your usual week";
+    }
+
     public string GetRandomSummary(double loadScore, double weightedProgress)
     {
         var summaries = new List<string>();

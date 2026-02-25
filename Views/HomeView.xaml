@@ -12,15 +12,34 @@
         <VerticalStackLayout Padding="24,16,24,96" Spacing="24">
             
             <!-- Top App Bar -->
-            <Grid ColumnDefinitions="*, Auto" Margin="0,8,0,0">
+            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="12" Margin="0,8,0,0">
                 <Label Text="Workload" 
                        FontFamily="InterBold"
                        FontSize="28" 
                        TextColor="{StaticResource TextPrimaryLight}"
                        VerticalOptions="Center"/>
-                
+
+                <!-- Yearly Overview Button -->
+                <Border Grid.Column="1"
+                        StrokeShape="Ellipse"
+                        HeightRequest="40"
+                        WidthRequest="40"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        BackgroundColor="White"
+                        VerticalOptions="Center">
+                    <Image Source="chart.svg"
+                           HeightRequest="20"
+                           WidthRequest="20"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToYearlyOverviewCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+
                 <!-- Profile Button -->
-                <Border Grid.Column="1" 
+                <Border Grid.Column="2" 
                         StrokeShape="Ellipse" 
                         HeightRequest="40" 
                         WidthRequest="40" 
@@ -52,6 +71,12 @@
                        FontSize="17" 
                        LineHeight="1.3"
                        TextColor="{StaticResource TextPrimaryLight}"/>
+                <Label Text="{Binding RelativeLoadLabel}" 
+                       FontFamily="InterMedium"
+                       FontSize="13" 
+                       LineHeight="1.2"
+                       TextColor="{StaticResource TextSecondaryLight}"
+                       IsVisible="{Binding RelativeLoadLabel, Converter={StaticResource StringToBoolConverter}}"/>
             </VerticalStackLayout>
 
             <!-- Week Cards Collection -->

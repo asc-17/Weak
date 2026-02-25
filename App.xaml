@@ -26,6 +26,7 @@
             <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
             <converters:IntensityBgColorConverter x:Key="IntensityBgColorConverter"/>
             <converters:IntensityTextColorConverter x:Key="IntensityTextColorConverter"/>
+            <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

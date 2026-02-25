@@ -12,6 +12,7 @@ namespace Weak
             Routing.RegisterRoute("createtask", typeof(CreateTaskPage));
             Routing.RegisterRoute("edittask", typeof(EditTaskPage));
             Routing.RegisterRoute("createlist", typeof(CreateListPage));
+            Routing.RegisterRoute("yearlyoverview", typeof(YearlyOverviewPage));
         }
     }
 }

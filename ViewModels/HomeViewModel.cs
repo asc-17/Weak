@@ -16,6 +16,9 @@ public partial class HomeViewModel : ObservableObject
     private string overviewText = string.Empty;
 
     [ObservableProperty]
+    private string relativeLoadLabel = string.Empty;
+
+    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UserInitial))]
     private string userName = string.Empty;
 
@@ -66,6 +69,9 @@ public partial class HomeViewModel : ObservableObject
             if (weekOffset == 0)
             {
                 OverviewText = _weekComputation.GetRandomSummary(weekData.LoadScore, weekData.WeightedProgress);
+
+                var averageLoad = await _weekComputation.ComputePersonalAverageLoadScoreAsync();
+                RelativeLoadLabel = _weekComputation.GetRelativeLoadLabel(weekData.LoadScore, averageLoad);
             }
         }
     }
@@ -80,6 +86,12 @@ public partial class HomeViewModel : ObservableObject
     private async Task NavigateToSettings()
     {
         await Shell.Current.GoToAsync("//SettingsView");
+    }
+
+    [RelayCommand]
+    private async Task NavigateToYearlyOverview()
+    {
+        await Shell.Current.GoToAsync("yearlyoverview");
     }
 }
 

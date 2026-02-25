@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Weak.ViewModels"
+             xmlns:models="clr-namespace:Weak.Models"
+             x:Class="Weak.Views.YearlyOverviewPage"
+             Title="Yearly Overview"
+             BackgroundColor="{StaticResource BackgroundLight}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,16,24,96" Spacing="20">
+
+            <!-- Header with year navigation -->
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,8,0,0">
+                <Button Grid.Column="0"
+                        Text="‹"
+                        FontSize="24"
+                        FontFamily="InterBold"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource TextPrimaryLight}"
+                        Command="{Binding PreviousYearCommand}"
+                        WidthRequest="44"
+                        HeightRequest="44"/>
+                <Label Grid.Column="1"
+                       Text="{Binding DisplayYear}"
+                       FontFamily="InterBold"
+                       FontSize="24"
+                       TextColor="{StaticResource TextPrimaryLight}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+                <Button Grid.Column="2"
+                        Text="›"
+                        FontSize="24"
+                        FontFamily="InterBold"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource TextPrimaryLight}"
+                        Command="{Binding NextYearCommand}"
+                        WidthRequest="44"
+                        HeightRequest="44"/>
+            </Grid>
+
+            <!-- Legend -->
+            <HorizontalStackLayout Spacing="12" HorizontalOptions="Center">
+                <HorizontalStackLayout Spacing="4">
+                    <Border StrokeShape="RoundRectangle 3"
+                            BackgroundColor="#dcfce7"
+                            HeightRequest="12" WidthRequest="12"
+                            Stroke="Transparent"/>
+                    <Label Text="Low" FontFamily="InterRegular" FontSize="11"
+                           TextColor="{StaticResource TextSecondaryLight}" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="4">
+                    <Border StrokeShape="RoundRectangle 3"
+                            BackgroundColor="#fef9c3"
+                            HeightRequest="12" WidthRequest="12"
+                            Stroke="Transparent"/>
+                    <Label Text="Moderate" FontFamily="InterRegular" FontSize="11"
+                           TextColor="{StaticResource TextSecondaryLight}" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="4">
+                    <Border StrokeShape="RoundRectangle 3"
+                            BackgroundColor="#ffedd5"
+                            HeightRequest="12" WidthRequest="12"
+                            Stroke="Transparent"/>
+                    <Label Text="High" FontFamily="InterRegular" FontSize="11"
+                           TextColor="{StaticResource TextSecondaryLight}" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="4">
+                    <Border StrokeShape="RoundRectangle 3"
+                            BackgroundColor="#fee2e2"
+                            HeightRequest="12" WidthRequest="12"
+                            Stroke="Transparent"/>
+                    <Label Text="Critical" FontFamily="InterRegular" FontSize="11"
+                           TextColor="{StaticResource TextSecondaryLight}" VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+            </HorizontalStackLayout>
+
+            <!-- Week grid -->
+            <FlexLayout BindableLayout.ItemsSource="{Binding WeekCells}"
+                        Wrap="Wrap"
+                        JustifyContent="Start"
+                        AlignContent="Start"
+                        Direction="Row">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:YearWeekCell">
+                        <Border StrokeShape="RoundRectangle 4"
+                                BackgroundColor="{Binding CellColor}"
+                                Stroke="Transparent"
+                                HeightRequest="14"
+                                WidthRequest="14"
+                                Margin="2">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:YearlyOverviewViewModel}}, Path=TapWeekCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </FlexLayout>
+
+            <!-- Summary -->
+            <Label Text="Tap any week to see details"
+                   FontFamily="InterRegular"
+                   FontSize="12"
+                   TextColor="{StaticResource TextSecondaryLight}"
+                   HorizontalOptions="Center"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

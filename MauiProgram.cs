@@ -31,6 +31,7 @@ namespace Weak
         builder.Services.AddSingleton<WeekComputationService>();
         builder.Services.AddSingleton<CalendarImportService>();
         builder.Services.AddSingleton<RecurrenceService>();
+        builder.Services.AddSingleton<AiCategorizationService>();
         
 #if ANDROID
         builder.Services.AddSingleton<INotificationService, Platforms.Android.Services.NotificationService>();
@@ -66,6 +67,9 @@ namespace Weak
 
         builder.Services.AddTransient<CreateListViewModel>();
         builder.Services.AddTransient<CreateListPage>();
+
+        builder.Services.AddTransient<YearlyOverviewViewModel>();
+        builder.Services.AddTransient<YearlyOverviewPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

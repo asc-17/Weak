@@ -5,10 +5,12 @@ namespace Weak.Services;
 public class CalendarImportService
 {
     private readonly DatabaseService _database;
+    private readonly AiCategorizationService _aiCategorization;
 
-    public CalendarImportService(DatabaseService database)
+    public CalendarImportService(DatabaseService database, AiCategorizationService aiCategorization)
     {
         _database = database;
+        _aiCategorization = aiCategorization;
     }
 
     public async Task<int> ImportCalendarEventsAsync(DateTime startDate, DateTime endDate, List<CalendarEvent> events)
@@ -31,14 +33,18 @@ public class CalendarImportService
             }
             else
             {
+                var suggestion = _aiCategorization.Suggest(calendarEvent.Title);
+
                 var newTask = new TaskItem
                 {
                     Title = calendarEvent.Title,
                     Deadline = calendarEvent.EndDate,
-                    Effort = 1,
+                    Effort = suggestion.Effort ?? 1,
                     CompletionPercent = 0,
                     Source = TaskSource.Calendar,
                     ExternalId = calendarEvent.Id,
+                    Subject = suggestion.Subject,
+                    Category = suggestion.Category,
                     SubjectColor = "#64748b"
                 };
 
