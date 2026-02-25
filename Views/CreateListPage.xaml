@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Weak.ViewModels"
+             x:Class="Weak.Views.CreateListPage"
+             Title="Create List"
+             BackgroundColor="{StaticResource BackgroundLight}"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="0" Spacing="24">
+
+            <!-- Custom Header -->
+            <Grid Padding="24,16" ColumnDefinitions="Auto, *" BackgroundColor="#104EB0">
+                <Border HeightRequest="40"
+                        WidthRequest="40"
+                        StrokeShape="RoundRectangle 20"
+                        BackgroundColor="Transparent"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Image Source="back.svg"
+                           HeightRequest="24"
+                           WidthRequest="24"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Label Grid.Column="1"
+                       Text="New List"
+                       FontFamily="InterBold"
+                       FontSize="20"
+                       TextColor="White"
+                       VerticalOptions="Center"
+                       Margin="12,0,0,0"/>
+            </Grid>
+
+            <VerticalStackLayout Padding="24,0" Spacing="20">
+
+                <!-- List Name -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="LIST NAME"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Entry Placeholder="e.g., Final Exams"
+                               Text="{Binding ListName}"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Subject -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="SUBJECT (OPTIONAL)"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Entry Placeholder="e.g., Mathematics"
+                               Text="{Binding Subject}"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Due Date -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="DUE DATE"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <DatePicker Date="{Binding DueDate}"
+                                    FontFamily="InterRegular"
+                                    FontSize="16"
+                                    TextColor="{StaticResource TextPrimaryLight}"
+                                    MinimumDate="2024-01-01"/>
+                    </Border>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+            <!-- Create Button -->
+            <Border StrokeShape="RoundRectangle 12"
+                    BackgroundColor="{StaticResource Primary}"
+                    StrokeThickness="0"
+                    Padding="16"
+                    Margin="24,24,24,40">
+                <Label Text="Create List"
+                       FontFamily="InterSemiBold"
+                       FontSize="17"
+                       TextColor="White"
+                       HorizontalOptions="Center"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateListCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

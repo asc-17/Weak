@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Weak.ViewModels"
              xmlns:models="clr-namespace:Weak.Models"
+             xmlns:selectors="clr-namespace:Weak.Selectors"
              x:Class="Weak.Views.TasksView"
              Title="Tasks"
              BackgroundColor="White">
@@ -63,98 +64,186 @@
                             </DataTemplate>
                         </CollectionView.GroupHeaderTemplate>
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:TaskItem">
-                                <SwipeView>
-                                    <SwipeView.RightItems>
-                                        <SwipeItems>
-                                            <SwipeItem Text="Delete"
-                                                       BackgroundColor="#ef4444"
-                                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=DeleteTaskCommand}"
-                                                       CommandParameter="{Binding .}"/>
-                                        </SwipeItems>
-                                    </SwipeView.RightItems>
+                            <selectors:TaskEntryTemplateSelector>
+                                <selectors:TaskEntryTemplateSelector.TaskTemplate>
+                                    <DataTemplate x:DataType="models:TaskItem">
+                                        <SwipeView>
+                                            <SwipeView.RightItems>
+                                                <SwipeItems>
+                                                    <SwipeItem Text="Delete"
+                                                               BackgroundColor="#ef4444"
+                                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=DeleteTaskCommand}"
+                                                               CommandParameter="{Binding .}"/>
+                                                </SwipeItems>
+                                            </SwipeView.RightItems>
 
-                                    <VerticalStackLayout BackgroundColor="White" Spacing="0">
-                                        <Grid ColumnDefinitions="Auto, *, Auto, Auto"
-                                              ColumnSpacing="10"
-                                              Padding="0,12,12,4">
-                                            <Grid.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=ToggleExpandCommand}"
-                                                                      CommandParameter="{Binding .}"/>
-                                            </Grid.GestureRecognizers>
+                                            <VerticalStackLayout BackgroundColor="White" Spacing="0">
+                                                <Grid ColumnDefinitions="Auto, *, Auto, Auto"
+                                                      ColumnSpacing="10"
+                                                      Padding="0,12,12,4">
+                                                    <Grid.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=ToggleExpandCommand}"
+                                                                              CommandParameter="{Binding .}"/>
+                                                    </Grid.GestureRecognizers>
 
-                                            <!-- Checkbox -->
-                                            <Border HeightRequest="24"
-                                                    WidthRequest="24"
-                                                    StrokeShape="Ellipse"
-                                                    Stroke="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxColorConverter}}"
-                                                    BackgroundColor="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxBgConverter}}"
-                                                    StrokeThickness="2"
-                                                    VerticalOptions="Center">
-                                                <Label Text="&#x2713;"
-                                                       FontSize="14"
-                                                       FontAttributes="Bold"
-                                                       TextColor="White"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"
-                                                       IsVisible="{Binding IsCompleted}"/>
+                                                    <Border HeightRequest="24"
+                                                            WidthRequest="24"
+                                                            StrokeShape="Ellipse"
+                                                            Stroke="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxColorConverter}}"
+                                                            BackgroundColor="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxBgConverter}}"
+                                                            StrokeThickness="2"
+                                                            VerticalOptions="Center">
+                                                        <Label Text="&#x2713;"
+                                                               FontSize="14"
+                                                               FontAttributes="Bold"
+                                                               TextColor="White"
+                                                               HorizontalOptions="Center"
+                                                               VerticalOptions="Center"
+                                                               IsVisible="{Binding IsCompleted}"/>
+                                                        <Border.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=ToggleTaskCommand}"
+                                                                                  CommandParameter="{Binding .}"/>
+                                                        </Border.GestureRecognizers>
+                                                    </Border>
+
+                                                    <Label Grid.Column="1"
+                                                           Text="{Binding Title}"
+                                                           FontFamily="InterRegular"
+                                                           FontSize="17"
+                                                           TextColor="{Binding IsCompleted, Converter={StaticResource BoolToTextColorConverter}}"
+                                                           TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethroughConverter}}"
+                                                           VerticalOptions="Center"/>
+
+                                                    <Border Grid.Column="2"
+                                                            StrokeShape="RoundRectangle 6"
+                                                            BackgroundColor="#EFF6FF"
+                                                            Stroke="Transparent"
+                                                            Padding="6,2"
+                                                            VerticalOptions="Center">
+                                                        <Label Text="{Binding Effort}"
+                                                               FontFamily="InterSemiBold"
+                                                               FontSize="12"
+                                                               TextColor="#104EB0"/>
+                                                    </Border>
+
+                                                    <Label Grid.Column="3"
+                                                           Text="{Binding DeadlineText}"
+                                                           FontFamily="InterMedium"
+                                                           FontSize="13"
+                                                           TextColor="{Binding DeadlineColor}"
+                                                           VerticalOptions="Center"/>
+                                                </Grid>
+
+                                                <Grid ColumnDefinitions="*, Auto"
+                                                      Padding="36,0,12,10"
+                                                      IsVisible="{Binding IsExpanded}">
+                                                    <Slider Value="{Binding CompletionPercent}"
+                                                            Minimum="0"
+                                                            Maximum="100"
+                                                            MinimumTrackColor="{StaticResource Primary}"
+                                                            MaximumTrackColor="{StaticResource Gray200}"/>
+                                                    <Label Grid.Column="1"
+                                                           Text="{Binding CompletionPercent, StringFormat='{0:F0}%'}"
+                                                           FontFamily="InterMedium"
+                                                           FontSize="13"
+                                                           TextColor="{StaticResource Primary}"
+                                                           VerticalOptions="Center"
+                                                           WidthRequest="40"/>
+                                                </Grid>
+                                            </VerticalStackLayout>
+                                        </SwipeView>
+                                    </DataTemplate>
+                                </selectors:TaskEntryTemplateSelector.TaskTemplate>
+
+                                <selectors:TaskEntryTemplateSelector.ListTemplate>
+                                    <DataTemplate x:DataType="models:TaskList">
+                                        <VerticalStackLayout Spacing="0" Padding="0,4">
+                                            <Border StrokeShape="RoundRectangle 10"
+                                                    BackgroundColor="#f0f9ff"
+                                                    Stroke="{StaticResource Primary}"
+                                                    StrokeThickness="1"
+                                                    Padding="12,10">
                                                 <Border.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=ToggleTaskCommand}"
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TasksViewModel}}, Path=ToggleListExpandCommand}"
                                                                           CommandParameter="{Binding .}"/>
                                                 </Border.GestureRecognizers>
+                                                <Grid ColumnDefinitions="*, Auto">
+                                                    <VerticalStackLayout Spacing="2">
+                                                        <Label Text="{Binding Name}"
+                                                               FontFamily="InterSemiBold"
+                                                               FontSize="16"
+                                                               TextColor="{StaticResource TextPrimaryLight}"/>
+                                                        <Label Text="{Binding Subject}"
+                                                               FontFamily="InterRegular"
+                                                               FontSize="13"
+                                                               TextColor="{StaticResource TextSecondaryLight}"/>
+                                                        <Label Text="{Binding DueDate, StringFormat='Due {0:MMM d}'}"
+                                                               FontFamily="InterRegular"
+                                                               FontSize="12"
+                                                               TextColor="{StaticResource Gray400}"/>
+                                                    </VerticalStackLayout>
+                                                    <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="End" VerticalOptions="Center">
+                                                        <Border StrokeShape="RoundRectangle 6"
+                                                                BackgroundColor="#EFF6FF"
+                                                                Stroke="Transparent"
+                                                                Padding="6,2"
+                                                                HorizontalOptions="End">
+                                                            <Label Text="{Binding AverageEffort, StringFormat='Avg {0:F1}'}"
+                                                                   FontFamily="InterSemiBold"
+                                                                   FontSize="11"
+                                                                   TextColor="#104EB0"/>
+                                                        </Border>
+                                                        <Label Text="{Binding SubtaskProgress}"
+                                                               FontFamily="InterMedium"
+                                                               FontSize="12"
+                                                               TextColor="{StaticResource TextSecondaryLight}"
+                                                               HorizontalOptions="End"/>
+                                                    </VerticalStackLayout>
+                                                </Grid>
                                             </Border>
 
-                                            <!-- Task Title -->
-                                            <Label Grid.Column="1"
-                                                   Text="{Binding Title}"
-                                                   FontFamily="InterRegular"
-                                                   FontSize="17"
-                                                   TextColor="{Binding IsCompleted, Converter={StaticResource BoolToTextColorConverter}}"
-                                                   TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethroughConverter}}"
-                                                   VerticalOptions="Center"/>
-
-                                            <!-- Effort badge -->
-                                            <Border Grid.Column="2"
-                                                    StrokeShape="RoundRectangle 6"
-                                                    BackgroundColor="#EFF6FF"
-                                                    Stroke="Transparent"
-                                                    Padding="6,2"
-                                                    VerticalOptions="Center">
-                                                <Label Text="{Binding Effort}"
-                                                       FontFamily="InterSemiBold"
-                                                       FontSize="12"
-                                                       TextColor="#104EB0"/>
-                                            </Border>
-
-                                            <!-- Due Date / Status -->
-                                            <Label Grid.Column="3"
-                                                   Text="{Binding DeadlineText}"
-                                                   FontFamily="InterMedium"
-                                                   FontSize="13"
-                                                   TextColor="{Binding DeadlineColor}"
-                                                   VerticalOptions="Center"/>
-                                        </Grid>
-
-                                        <!-- Expansion: completion slider -->
-                                        <Grid ColumnDefinitions="*, Auto"
-                                              Padding="36,0,12,10"
-                                              IsVisible="{Binding IsExpanded}">
-                                            <Slider Value="{Binding CompletionPercent}"
-                                                    Minimum="0"
-                                                    Maximum="100"
-                                                    MinimumTrackColor="{StaticResource Primary}"
-                                                    MaximumTrackColor="{StaticResource Gray200}"/>
-                                            <Label Grid.Column="1"
-                                                   Text="{Binding CompletionPercent, StringFormat='{0:F0}%'}"
-                                                   FontFamily="InterMedium"
-                                                   FontSize="13"
-                                                   TextColor="{StaticResource Primary}"
-                                                   VerticalOptions="Center"
-                                                   WidthRequest="40"/>
-                                        </Grid>
-                                    </VerticalStackLayout>
-                                </SwipeView>
-                            </DataTemplate>
+                                            <!-- Expanded subtasks -->
+                                            <CollectionView ItemsSource="{Binding Subtasks}"
+                                                            IsVisible="{Binding IsExpanded}"
+                                                            SelectionMode="None"
+                                                            Margin="16,0,0,4">
+                                                <CollectionView.ItemTemplate>
+                                                    <DataTemplate x:DataType="models:TaskItem">
+                                                        <Grid ColumnDefinitions="Auto, *, Auto"
+                                                              ColumnSpacing="8"
+                                                              Padding="0,8">
+                                                            <Border HeightRequest="18" WidthRequest="18"
+                                                                    StrokeShape="Ellipse"
+                                                                    Stroke="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxColorConverter}}"
+                                                                    BackgroundColor="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxBgConverter}}"
+                                                                    StrokeThickness="2"
+                                                                    VerticalOptions="Center">
+                                                                <Label Text="&#x2713;" FontSize="11" FontAttributes="Bold"
+                                                                       TextColor="White"
+                                                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                                                       IsVisible="{Binding IsCompleted}"/>
+                                                            </Border>
+                                                            <Label Grid.Column="1"
+                                                                   Text="{Binding Title}"
+                                                                   FontFamily="InterRegular"
+                                                                   FontSize="15"
+                                                                   TextColor="{Binding IsCompleted, Converter={StaticResource BoolToTextColorConverter}}"
+                                                                   TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethroughConverter}}"
+                                                                   VerticalOptions="Center"/>
+                                                            <Label Grid.Column="2"
+                                                                   Text="{Binding DeadlineText}"
+                                                                   FontFamily="InterMedium"
+                                                                   FontSize="12"
+                                                                   TextColor="{Binding DeadlineColor}"
+                                                                   VerticalOptions="Center"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </CollectionView.ItemTemplate>
+                                            </CollectionView>
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </selectors:TaskEntryTemplateSelector.ListTemplate>
+                            </selectors:TaskEntryTemplateSelector>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
@@ -209,28 +298,35 @@
                     </CollectionView>
                 </VerticalStackLayout>
 
-                <!-- Add New Task Button -->
-                <Border StrokeShape="RoundRectangle 12"
-                        BackgroundColor="{StaticResource Primary}"
-                        StrokeThickness="0"
-                        Padding="16"
-                        Margin="0,16,0,16">
-                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                        <Label Text="+" 
-                               FontFamily="InterRegular"
-                               FontSize="20" 
-                               TextColor="White"
-                               VerticalOptions="Center"/>
-                        <Label Text="Add New Task" 
-                               FontFamily="InterSemiBold"
-                               FontSize="17" 
-                               TextColor="White"
-                               VerticalOptions="Center"/>
-                    </HorizontalStackLayout>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding AddTaskCommand}"/>
-                    </Border.GestureRecognizers>
-                </Border>
+                <!-- Add Buttons Row -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="12" Margin="0,16,0,16">
+                    <Border StrokeShape="RoundRectangle 12"
+                            BackgroundColor="{StaticResource Primary}"
+                            StrokeThickness="0"
+                            Padding="12">
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Label Text="+" FontFamily="InterRegular" FontSize="18" TextColor="White" VerticalOptions="Center"/>
+                            <Label Text="Add Task" FontFamily="InterSemiBold" FontSize="15" TextColor="White" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding AddTaskCommand}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Primary}"
+                            StrokeThickness="1.5"
+                            Padding="12">
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Label Text="+" FontFamily="InterRegular" FontSize="18" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                            <Label Text="Add List" FontFamily="InterSemiBold" FontSize="15" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding AddListCommand}"/>
+                        </Border.GestureRecognizers>
+                    </Border>
+                </Grid>
 
             </VerticalStackLayout>
         </ScrollView>

@@ -11,6 +11,7 @@ public partial class TasksViewModel : ObservableObject
     private readonly TaskRepository _taskRepository;
     private readonly INotificationService _notificationService;
     private readonly WeekComputationService _weekComputation;
+    private readonly TaskListRepository _taskListRepository;
 
     public ObservableCollection<TaskGroup> TaskGroups { get; } = new();
     public ObservableCollection<Subject> Subjects { get; } = new();
@@ -24,11 +25,12 @@ public partial class TasksViewModel : ObservableObject
 
     public string TaskCountDisplay => $"Tasks ({TaskCount})";
 
-    public TasksViewModel(TaskRepository taskRepository, INotificationService notificationService, WeekComputationService weekComputation)
+    public TasksViewModel(TaskRepository taskRepository, INotificationService notificationService, WeekComputationService weekComputation, TaskListRepository taskListRepository)
     {
         _taskRepository = taskRepository;
         _notificationService = notificationService;
         _weekComputation = weekComputation;
+        _taskListRepository = taskListRepository;
         CurrentDate = DateTime.Now.ToString("dddd, MMM dd");
     }
 
@@ -42,24 +44,27 @@ public partial class TasksViewModel : ObservableObject
         TaskGroups.Clear();
 
         var allTasks = await _taskRepository.GetAllTasksAsync();
+        var standaloneTasks = allTasks.Where(t => t.ParentListId == null).ToList();
         var today = DateTime.Today;
         var thisWeekStart = await _weekComputation.GetWeekStartAsync(today);
+        var taskLists = await _taskListRepository.GetAllTaskListsAsync();
 
-        var overdue = allTasks
-            .Where(t => t.Deadline.Date < thisWeekStart)
-            .OrderBy(t => t.Deadline).ToList();
-        var thisWeek = allTasks
-            .Where(t => t.Deadline.Date >= thisWeekStart && t.Deadline.Date < thisWeekStart.AddDays(7))
-            .OrderBy(t => t.IsCompleted).ThenBy(t => t.Deadline).ToList();
-        var nextWeek = allTasks
-            .Where(t => t.Deadline.Date >= thisWeekStart.AddDays(7) && t.Deadline.Date < thisWeekStart.AddDays(14))
-            .OrderBy(t => t.IsCompleted).ThenBy(t => t.Deadline).ToList();
-        var weekAfter = allTasks
-            .Where(t => t.Deadline.Date >= thisWeekStart.AddDays(14) && t.Deadline.Date < thisWeekStart.AddDays(21))
-            .OrderBy(t => t.IsCompleted).ThenBy(t => t.Deadline).ToList();
-        var beyond = allTasks
-            .Where(t => t.Deadline.Date >= thisWeekStart.AddDays(21))
-            .OrderBy(t => t.Deadline).ToList();
+        var allEntries = new List<(DateTime Date, object Entry)>();
+        foreach (var task in standaloneTasks)
+            allEntries.Add((task.Deadline, task));
+        foreach (var list in taskLists)
+            allEntries.Add((list.DueDate, list));
+
+        var overdue = allEntries.Where(e => e.Date.Date < thisWeekStart)
+            .OrderBy(e => e.Date).Select(e => e.Entry).ToList();
+        var thisWeek = allEntries.Where(e => e.Date.Date >= thisWeekStart && e.Date.Date < thisWeekStart.AddDays(7))
+            .OrderBy(e => e.Date).Select(e => e.Entry).ToList();
+        var nextWeek = allEntries.Where(e => e.Date.Date >= thisWeekStart.AddDays(7) && e.Date.Date < thisWeekStart.AddDays(14))
+            .OrderBy(e => e.Date).Select(e => e.Entry).ToList();
+        var weekAfter = allEntries.Where(e => e.Date.Date >= thisWeekStart.AddDays(14) && e.Date.Date < thisWeekStart.AddDays(21))
+            .OrderBy(e => e.Date).Select(e => e.Entry).ToList();
+        var beyond = allEntries.Where(e => e.Date.Date >= thisWeekStart.AddDays(21))
+            .OrderBy(e => e.Date).ToList();
 
         if (overdue.Any())
             TaskGroups.Add(new TaskGroup("Overdue", thisWeekStart.AddDays(-7), overdue));
@@ -85,13 +90,13 @@ public partial class TasksViewModel : ObservableObject
                 was, weekAfter));
         }
 
-        var beyondByWeek = new Dictionary<DateTime, List<TaskItem>>();
-        foreach (var task in beyond)
+        var beyondByWeek = new Dictionary<DateTime, List<object>>();
+        foreach (var (date, entry) in beyond)
         {
-            var ws = await _weekComputation.GetWeekStartAsync(task.Deadline);
+            var ws = await _weekComputation.GetWeekStartAsync(date);
             if (!beyondByWeek.ContainsKey(ws))
-                beyondByWeek[ws] = new List<TaskItem>();
-            beyondByWeek[ws].Add(task);
+                beyondByWeek[ws] = new List<object>();
+            beyondByWeek[ws].Add(entry);
         }
         foreach (var (ws, items) in beyondByWeek.OrderBy(kv => kv.Key))
             TaskGroups.Add(new TaskGroup(
@@ -122,6 +127,29 @@ public partial class TasksViewModel : ObservableObject
     private async Task AddTask()
     {
         await Shell.Current.GoToAsync("createtask");
+    }
+
+    [RelayCommand]
+    private async Task AddList()
+    {
+        await Shell.Current.GoToAsync("createlist");
+    }
+
+    [RelayCommand]
+    private void ToggleListExpand(TaskList list)
+    {
+        if (list != null)
+            list.IsExpanded = !list.IsExpanded;
+    }
+
+    [RelayCommand]
+    private async Task DeleteList(TaskList list)
+    {
+        if (list != null)
+        {
+            await _taskListRepository.DeleteTaskListAsync(list);
+            await LoadTasksAsync();
+        }
     }
 
     [RelayCommand]

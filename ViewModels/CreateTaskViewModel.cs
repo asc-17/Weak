@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
 using Weak.Models;
 using Weak.Services;
 
@@ -9,6 +10,7 @@ public partial class CreateTaskViewModel : ObservableObject
 {
     private readonly TaskRepository _taskRepository;
     private readonly INotificationService _notificationService;
+    private readonly TaskListRepository _taskListRepository;
 
     [ObservableProperty]
     private string taskTitle = string.Empty;
@@ -34,16 +36,32 @@ public partial class CreateTaskViewModel : ObservableObject
     [ObservableProperty]
     private bool isDayOnly = false;
 
+    [ObservableProperty]
+    private TaskList? selectedList;
+
     public bool IsNoneSelected => RecurrenceType == "none";
     public bool IsDailySelected => RecurrenceType == "daily";
     public bool IsWeeklySelected => RecurrenceType == "weekly";
     public bool IsMonthlySelected => RecurrenceType == "monthly";
     public bool IsCustomSelected => RecurrenceType == "custom";
 
-    public CreateTaskViewModel(TaskRepository taskRepository, INotificationService notificationService)
+    public ObservableCollection<TaskList> AvailableLists { get; } = new();
+
+    public CreateTaskViewModel(TaskRepository taskRepository, INotificationService notificationService, TaskListRepository taskListRepository)
     {
         _taskRepository = taskRepository;
         _notificationService = notificationService;
+        _taskListRepository = taskListRepository;
+    }
+
+    public async Task InitializeAsync()
+    {
+        AvailableLists.Clear();
+        AvailableLists.Add(new TaskList { Id = 0, Name = "None" });
+        var lists = await _taskListRepository.GetAllTaskListsAsync();
+        foreach (var list in lists)
+            AvailableLists.Add(list);
+        SelectedList = AvailableLists[0];
     }
 
     [RelayCommand]
@@ -91,7 +109,8 @@ public partial class CreateTaskViewModel : ObservableObject
             SubjectColor = GetRandomColor(),
             RecurrenceType = recurrenceType,
             RecurrenceInterval = recurrenceInterval,
-            IsDayOnly = isDayOnly
+            IsDayOnly = isDayOnly,
+            ParentListId = selectedList?.Id > 0 ? selectedList.Id : null
         };
 
         await _taskRepository.SaveTaskAsync(newTask);

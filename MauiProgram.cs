@@ -26,6 +26,7 @@ namespace Weak
         // Services
         builder.Services.AddSingleton<DatabaseService>();
         builder.Services.AddSingleton<TaskRepository>();
+        builder.Services.AddSingleton<TaskListRepository>();
         builder.Services.AddSingleton<SettingsService>();
         builder.Services.AddSingleton<WeekComputationService>();
         builder.Services.AddSingleton<CalendarImportService>();
@@ -57,6 +58,9 @@ namespace Weak
 
         builder.Services.AddTransient<OnboardingViewModel>();
         builder.Services.AddTransient<OnboardingPage>();
+
+        builder.Services.AddTransient<CreateListViewModel>();
+        builder.Services.AddTransient<CreateListPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

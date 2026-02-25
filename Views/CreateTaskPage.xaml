@@ -99,6 +99,26 @@
                 </Border>
             </VerticalStackLayout>
 
+            <!-- List (optional) -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="LIST (OPTIONAL)"
+                       FontFamily="InterSemiBold"
+                       FontSize="12"
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+                <Border StrokeShape="RoundRectangle 10"
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,4">
+                    <Picker ItemsSource="{Binding AvailableLists}"
+                            SelectedItem="{Binding SelectedList}"
+                            ItemDisplayBinding="{Binding Name}"
+                            FontFamily="InterRegular"
+                            FontSize="16"
+                            TextColor="{StaticResource TextPrimaryLight}"/>
+                </Border>
+            </VerticalStackLayout>
+
             <!-- Date -->
             <VerticalStackLayout Spacing="6">
                 <Label Text="DATE" 

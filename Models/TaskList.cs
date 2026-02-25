@@ -47,4 +47,15 @@ public class TaskList : ObservableObject
 
     [Ignore]
     public string SubtaskProgress => $"{CompletedSubtaskCount}/{SubtaskCount} done";
+
+    private bool _isExpanded;
+    [Ignore]
+    public bool IsExpanded
+    {
+        get => _isExpanded;
+        set => SetProperty(ref _isExpanded, value);
+    }
+
+    [Ignore]
+    public List<TaskItem> Subtasks { get; set; } = new();
 }
