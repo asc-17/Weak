@@ -29,25 +29,12 @@
                         BackgroundColor="White"
                         VerticalOptions="Center"
                         HorizontalOptions="End">
-                    <Ellipse HeightRequest="40" 
-                             WidthRequest="40"
-                             Fill="White"
-                             HorizontalOptions="Center" 
-                             VerticalOptions="Center">
-                        <Ellipse.Clip>
-                            <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20" />
-                        </Ellipse.Clip>
-                    </Ellipse>
                     <Image Source="omega.png" 
                            HeightRequest="40"
                            WidthRequest="40"
                            Aspect="AspectFill"
                            HorizontalOptions="Center" 
-                           VerticalOptions="Center">
-                        <Image.Clip>
-                            <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20" />
-                        </Image.Clip>
-                    </Image>
+                           VerticalOptions="Center"/>
                 </Border>
             </Grid>
 

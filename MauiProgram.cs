@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Weak.Views;
+using Weak.Views.Onboarding;
 using Weak.ViewModels;
 using Weak.Services;
 
@@ -53,6 +54,9 @@ namespace Weak
 
         builder.Services.AddSingleton<SettingsViewModel>();
         builder.Services.AddSingleton<SettingsView>();
+
+        builder.Services.AddTransient<OnboardingViewModel>();
+        builder.Services.AddTransient<OnboardingPage>();
 
 #if DEBUG
     		builder.Logging.AddDebug();

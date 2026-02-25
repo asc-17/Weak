@@ -23,6 +23,7 @@
             <converters:BoolToStrokeThicknessConverter x:Key="BoolToStrokeThicknessConverter"/>
             <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
             <converters:ProgressWidthConverter x:Key="ProgressWidthConverter"/>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
