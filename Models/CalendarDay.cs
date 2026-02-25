@@ -38,6 +38,12 @@ public partial class CalendarDay : ObservableObject
     [ObservableProperty]
     private bool hasEffort;
 
+    [ObservableProperty]
+    private double loadScore;
+
+    [ObservableProperty]
+    private string dayIntensityColor = "Transparent";
+
     public ObservableCollection<string> TaskIndicatorColors { get; } = new();
 
     public CalendarDay(DateTime date, bool isCurrentMonth)

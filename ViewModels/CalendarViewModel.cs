@@ -9,10 +9,13 @@ namespace Weak.ViewModels;
 public partial class CalendarViewModel : ObservableObject
 {
     private readonly TaskRepository _taskRepository;
+    private readonly SettingsService _settingsService;
+    private readonly WeekComputationService _weekComputationService;
 
     public ObservableCollection<CalendarGroup> Days { get; } = new();
     public ObservableCollection<CalendarDay> MonthDays { get; } = new();
     public ObservableCollection<TaskItem> SelectedDayTasks { get; } = new();
+    public ObservableCollection<object> DayTimelineItems { get; } = new();
     public ObservableCollection<CalendarDay> WeekDays { get; } = new();
 
     [ObservableProperty]
@@ -33,13 +36,25 @@ public partial class CalendarViewModel : ObservableObject
     [ObservableProperty]
     private string selectedDayTitle = string.Empty;
 
-    public CalendarViewModel(TaskRepository taskRepository)
+    [ObservableProperty]
+    private TimeSpan wakeTime = new(7, 0, 0);
+
+    [ObservableProperty]
+    private TimeSpan sleepTime = new(23, 0, 0);
+
+    public CalendarViewModel(TaskRepository taskRepository, SettingsService settingsService, WeekComputationService weekComputationService)
     {
         _taskRepository = taskRepository;
+        _settingsService = settingsService;
+        _weekComputationService = weekComputationService;
     }
 
     public async Task InitializeAsync()
     {
+        var settings = await _settingsService.GetSettingsAsync();
+        WakeTime = settings.WakeTime;
+        SleepTime = settings.SleepTime;
+
         await LoadCalendarDataAsync();
     }
 
@@ -54,9 +69,11 @@ public partial class CalendarViewModel : ObservableObject
     private async Task SwitchView(string mode)
     {
         ViewMode = mode;
-        
+
         if (mode == "Timeline")
             await LoadTimelineViewAsync();
+        else if (mode == "Day")
+            await LoadDayViewAsync();
         else if (mode == "Month")
             await LoadMonthViewAsync();
     }
@@ -97,6 +114,7 @@ public partial class CalendarViewModel : ObservableObject
     private async Task LoadSelectedDayTasksAsync()
     {
         SelectedDayTasks.Clear();
+        DayTimelineItems.Clear();
 
         var allTasks = await _taskRepository.GetAllTasksAsync();
         var tasksForDay = allTasks
@@ -107,6 +125,24 @@ public partial class CalendarViewModel : ObservableObject
         foreach (var task in tasksForDay)
         {
             SelectedDayTasks.Add(task);
+        }
+
+        // Build mixed timeline with TimeMarker objects for Day view
+        var timelineItems = new List<(TimeSpan SortTime, object Item)>();
+
+        // Add wake/sleep markers
+        timelineItems.Add((WakeTime, new TimeMarker { Label = "Wake Up", Time = WakeTime, Color = "#94a3b8" }));
+        timelineItems.Add((SleepTime, new TimeMarker { Label = "Sleep", Time = SleepTime, Color = "#334155" }));
+
+        // Add tasks (day view includes IsDayOnly tasks)
+        foreach (var task in tasksForDay)
+        {
+            timelineItems.Add((task.Deadline.TimeOfDay, task));
+        }
+
+        foreach (var item in timelineItems.OrderBy(x => x.SortTime))
+        {
+            DayTimelineItems.Add(item.Item);
         }
     }
 
@@ -125,14 +161,14 @@ public partial class CalendarViewModel : ObservableObject
 
         // Start from Sunday of the week containing the first day
         var startDate = firstDayOfMonth.AddDays(-(int)firstDayOfMonth.DayOfWeek);
-        
+
         // End on Saturday of the week containing the last day
         var endDate = lastDayOfMonth.AddDays(6 - (int)lastDayOfMonth.DayOfWeek);
 
-        // Get all tasks for this period
+        // Get all tasks for this period, excluding day-only tasks from month view
         var allTasks = await _taskRepository.GetAllTasksAsync();
         var tasksInPeriod = allTasks
-            .Where(t => t.Deadline.Date >= startDate && t.Deadline.Date <= endDate)
+            .Where(t => !t.IsDayOnly && t.Deadline.Date >= startDate && t.Deadline.Date <= endDate)
             .GroupBy(t => t.Deadline.Date)
             .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -145,14 +181,23 @@ public partial class CalendarViewModel : ObservableObject
             {
                 calendarDay.TaskCount = tasksOnDay.Count;
                 calendarDay.HasHighPriorityTask = tasksOnDay.Any(t => t.Deadline.Date <= DateTime.Today.AddDays(1));
-                
-                // Calculate daily effort
-                var dailyEffort = tasksOnDay.Sum(t => t.Effort);
-                calendarDay.DailyEffort = dailyEffort;
-                calendarDay.HasEffort = dailyEffort > 0;
-                
-                // Set effort bar color based on load intensity
-                calendarDay.EffortBarColor = GetEffortBarColor(dailyEffort);
+
+                // Calculate LoadScore for the day using the same formula
+                var loadScore = _weekComputationService.CalculateLoadScore(tasksOnDay);
+                calendarDay.LoadScore = loadScore;
+                calendarDay.HasEffort = tasksOnDay.Any(t => t.Effort > 0);
+
+                // Set intensity dot colour based on PRD thresholds
+                calendarDay.DayIntensityColor = GetDayIntensityColor(loadScore);
+
+                // Build up to 3 indicator dots for different urgency levels
+                calendarDay.TaskIndicatorColors.Clear();
+                var urgencyLevels = tasksOnDay
+                    .Select(t => GetDayIntensityColor(_weekComputationService.CalculateLoadScore(new List<TaskItem> { t })))
+                    .Distinct()
+                    .Take(3);
+                foreach (var color in urgencyLevels)
+                    calendarDay.TaskIndicatorColors.Add(color);
             }
 
             // Auto-select today
@@ -168,20 +213,16 @@ public partial class CalendarViewModel : ObservableObject
         await LoadSelectedDayTasksAsync();
     }
 
-    private string GetEffortBarColor(double effort)
+    private string GetDayIntensityColor(double loadScore)
     {
-        // Low effort (1-3): Muted green
-        if (effort <= 3)
-            return "#81C784"; // Soft green
-        // Medium-low effort (4-6): Muted yellow/beige
-        else if (effort <= 6)
-            return "#FFB74D"; // Soft orange/amber
-        // Medium-high effort (7-8): Muted orange
-        else if (effort <= 8)
-            return "#FF8A65"; // Soft coral/orange
-        // High effort (9-10): Muted red
+        if (loadScore <= 3.0)
+            return "#3b82f6"; // Blue
+        else if (loadScore <= 6.0)
+            return "#eab308"; // Yellow/Amber
+        else if (loadScore <= 8.5)
+            return "#f97316"; // Orange
         else
-            return "#E57373"; // Soft red
+            return "#ef4444"; // Red
     }
 
     private async Task LoadDayViewAsync()
@@ -190,7 +231,7 @@ public partial class CalendarViewModel : ObservableObject
 
         // Get the week containing the selected date
         var weekStart = SelectedDate.AddDays(-(int)SelectedDate.DayOfWeek);
-        
+
         var allTasks = await _taskRepository.GetAllTasksAsync();
         var tasksInWeek = allTasks
             .Where(t => t.Deadline.Date >= weekStart && t.Deadline.Date < weekStart.AddDays(7))
@@ -214,7 +255,7 @@ public partial class CalendarViewModel : ObservableObject
             WeekDays.Add(calendarDay);
         }
 
-        // Load tasks for selected day
+        // Load tasks for selected day (includes IsDayOnly and markers)
         SelectedDayTitle = GetDayTitle(SelectedDate);
         await LoadSelectedDayTasksAsync();
     }
@@ -239,10 +280,14 @@ public partial class CalendarViewModel : ObservableObject
     {
         task.CompletionPercent = task.CompletionPercent >= 100 ? 0 : 100;
         await _taskRepository.SaveTaskAsync(task);
-        
+
         // Refresh the current view
         if (ViewMode == "Day")
             await LoadDayViewAsync();
+        else if (ViewMode == "Timeline")
+            await LoadTimelineViewAsync();
+        else if (ViewMode == "Month")
+            await LoadMonthViewAsync();
     }
 
     private async Task LoadWeekViewAsync()
@@ -291,11 +336,41 @@ public partial class CalendarViewModel : ObservableObject
 
         var allTasks = await _taskRepository.GetAllTasksAsync();
 
-        // Show tasks from 7 days ago to 30 days in future
-        var startDate = DateTime.Today.AddDays(-7);
+        // Exclude day-only tasks from timeline view
+        var timelineTasks = allTasks.Where(t => !t.IsDayOnly).ToList();
+
+        // Prepend overdue group: tasks before today that are not 100% complete
+        var overdueTasks = timelineTasks
+            .Where(t => t.Deadline.Date < DateTime.Today && t.CompletionPercent < 100)
+            .OrderBy(t => t.Deadline)
+            .ToList();
+
+        if (overdueTasks.Any())
+        {
+            var overdueItems = overdueTasks
+                .Select(t => new CalendarItem
+                {
+                    Time = t.Deadline.ToString("hh:mm"),
+                    Period = t.Deadline.ToString("tt"),
+                    Title = t.Title,
+                    Subtitle = GetSubtitle(t),
+                    PriorityColor = t.SubjectColor,
+                    IsPriority = true,
+                    IsPending = true,
+                    Effort = t.Effort,
+                    CompletionPercent = t.CompletionPercent,
+                    EffortBarColor = GetEffortBarColor(t.Effort)
+                })
+                .ToList();
+
+            Days.Add(new CalendarGroup("!", "", "Overdue", false, overdueItems));
+        }
+
+        // Show tasks from today to 30 days in future
+        var startDate = DateTime.Today;
         var endDate = DateTime.Today.AddDays(30);
 
-        var tasksByDate = allTasks
+        var tasksByDate = timelineTasks
             .Where(t => t.Deadline.Date >= startDate && t.Deadline.Date <= endDate)
             .GroupBy(t => t.Deadline.Date)
             .OrderBy(g => g.Key)
@@ -319,6 +394,7 @@ public partial class CalendarViewModel : ObservableObject
                     Subtitle = GetSubtitle(t),
                     PriorityColor = t.SubjectColor,
                     IsPriority = t.Deadline.Date <= DateTime.Today.AddDays(1),
+                    IsPending = t.Deadline.Date < DateTime.Today && t.CompletionPercent < 100,
                     Effort = t.Effort,
                     CompletionPercent = t.CompletionPercent,
                     EffortBarColor = GetEffortBarColor(t.Effort)
@@ -339,6 +415,18 @@ public partial class CalendarViewModel : ObservableObject
                 new List<CalendarItem>()
             ));
         }
+    }
+
+    private string GetEffortBarColor(double effort)
+    {
+        if (effort <= 3)
+            return "#81C784";
+        else if (effort <= 6)
+            return "#FFB74D";
+        else if (effort <= 8)
+            return "#FF8A65";
+        else
+            return "#E57373";
     }
 
     private string GetDayTitle(DateTime date)

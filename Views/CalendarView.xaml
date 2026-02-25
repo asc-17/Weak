@@ -3,9 +3,164 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Weak.ViewModels"
              xmlns:models="clr-namespace:Weak.Models"
+             xmlns:selectors="clr-namespace:Weak.Selectors"
              x:Class="Weak.Views.CalendarView"
              Title="Calendar"
              BackgroundColor="White">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <!-- Task template for Day view -->
+            <DataTemplate x:Key="DayTaskTemplate" x:DataType="models:TaskItem">
+                <Grid ColumnDefinitions="80, *" Padding="0,0,0,24">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=NavigateToTaskItemCommand}"
+                                              CommandParameter="{Binding .}"/>
+                    </Grid.GestureRecognizers>
+
+                    <!-- Time Column -->
+                    <VerticalStackLayout HorizontalOptions="Start" Margin="0,8,0,0">
+                        <Label Text="{Binding Deadline, StringFormat='{0:hh:mm tt}'}" 
+                               FontFamily="InterMedium"
+                               FontSize="14" 
+                               TextColor="{StaticResource TextSecondaryLight}"/>
+                    </VerticalStackLayout>
+
+                    <!-- Event Card -->
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="#f8f9fa"
+                            StrokeThickness="0"
+                            Padding="16,12"
+                            Margin="8,0,0,0">
+                        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                            <!-- Event Icon/Circle -->
+                            <Border HeightRequest="48" 
+                                    WidthRequest="48" 
+                                    StrokeShape="RoundRectangle 24"
+                                    BackgroundColor="{Binding EffortBarColor}"
+                                    StrokeThickness="0"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center">
+                                <Label Text="{Binding Effort}"
+                                       FontFamily="InterBold"
+                                       FontSize="18"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Border>
+
+                            <!-- Event Details -->
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding Title}" 
+                                           FontFamily="InterSemiBold"
+                                           FontSize="16" 
+                                           TextColor="{StaticResource TextPrimaryLight}"/>
+                                    <!-- Pending Badge -->
+                                    <Border StrokeShape="RoundRectangle 4"
+                                            BackgroundColor="#fee2e2"
+                                            Padding="6,2"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center"
+                                            IsVisible="{Binding IsPending}">
+                                        <Label Text="Pending"
+                                               FontFamily="InterSemiBold"
+                                               FontSize="10"
+                                               TextColor="#b91c1c"/>
+                                    </Border>
+                                </HorizontalStackLayout>
+
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="{Binding Subject}" 
+                                           FontFamily="InterRegular"
+                                           FontSize="13" 
+                                           TextColor="{StaticResource TextSecondaryLight}"/>
+                                    <!-- Effort Badge Pill -->
+                                    <Border StrokeShape="RoundRectangle 6"
+                                            BackgroundColor="#EFF6FF"
+                                            Padding="6,2"
+                                            StrokeThickness="0"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding Effort, StringFormat='Effort {0}'}"
+                                               FontFamily="InterSemiBold"
+                                               FontSize="12"
+                                               TextColor="#104EB0"/>
+                                    </Border>
+                                </HorizontalStackLayout>
+
+                                <!-- Progress Bar -->
+                                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8" Margin="0,4,0,0">
+                                    <ProgressBar Progress="{Binding CompletionPercent, Converter={StaticResource ProgressWidthConverter}}"
+                                                 ProgressColor="#2196F3"
+                                                 HeightRequest="4"
+                                                 VerticalOptions="Center"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding CompletionPercent, StringFormat='{0:F0}%'}"
+                                           FontFamily="InterMedium"
+                                           FontSize="11"
+                                           TextColor="#2196F3"
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <!-- Checkbox -->
+                            <Border Grid.Column="2"
+                                    StrokeShape="Ellipse"
+                                    HeightRequest="24"
+                                    WidthRequest="24"
+                                    Stroke="{Binding EffortBarColor}"
+                                    StrokeThickness="2"
+                                    BackgroundColor="Transparent"
+                                    VerticalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=ToggleTaskCompletionCommand}"
+                                                          CommandParameter="{Binding .}"/>
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </DataTemplate>
+
+            <!-- TimeMarker template for Day view -->
+            <DataTemplate x:Key="DayMarkerTemplate" x:DataType="models:TimeMarker">
+                <Grid ColumnDefinitions="80, *" Padding="0,4,0,4">
+                    <Label Text="{Binding Time, StringFormat='{0:hh\\:mm}'}" 
+                           FontFamily="InterMedium"
+                           FontSize="12" 
+                           TextColor="{Binding Color}"
+                           HorizontalOptions="Start"
+                           VerticalOptions="Center"
+                           Margin="0,0,0,0"/>
+
+                    <Grid Grid.Column="1" ColumnDefinitions="Auto, *" ColumnSpacing="8" VerticalOptions="Center" Margin="8,0,0,0">
+                        <!-- Badge -->
+                        <Border StrokeShape="RoundRectangle 8"
+                                BackgroundColor="{Binding Color}"
+                                Padding="8,4"
+                                StrokeThickness="0"
+                                VerticalOptions="Center">
+                            <Label Text="{Binding Label}"
+                                   FontFamily="InterSemiBold"
+                                   FontSize="11"
+                                   TextColor="White"/>
+                        </Border>
+                        <!-- Dashed line -->
+                        <BoxView Grid.Column="1"
+                                 Color="{Binding Color}"
+                                 HeightRequest="1"
+                                 VerticalOptions="Center"
+                                 Opacity="0.4"/>
+                    </Grid>
+                </Grid>
+            </DataTemplate>
+
+            <selectors:DayTimelineTemplateSelector x:Key="DayTimelineSelector"
+                                                    TaskTemplate="{StaticResource DayTaskTemplate}"
+                                                    MarkerTemplate="{StaticResource DayMarkerTemplate}"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto, Auto, Auto, *">
         
@@ -157,95 +312,9 @@
                              HorizontalOptions="Start"
                              Margin="23,0,0,0"/>
 
-                    <CollectionView ItemsSource="{Binding SelectedDayTasks}"
-                                    SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:TaskItem">
-                                <Grid ColumnDefinitions="80, *" Padding="0,0,0,24">
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=NavigateToTaskItemCommand}"
-                                                              CommandParameter="{Binding .}"/>
-                                    </Grid.GestureRecognizers>
-                                    
-                                    <!-- Time Column -->
-                                    <VerticalStackLayout HorizontalOptions="Start" Margin="0,8,0,0">
-                                        <Label Text="{Binding Deadline, StringFormat='{0:hh:mm tt}'}" 
-                                               FontFamily="InterMedium"
-                                               FontSize="14" 
-                                               TextColor="{StaticResource TextSecondaryLight}"/>
-                                    </VerticalStackLayout>
-
-                                    <!-- Event Card -->
-                                    <Border Grid.Column="1"
-                                            StrokeShape="RoundRectangle 12"
-                                            BackgroundColor="#f8f9fa"
-                                            StrokeThickness="0"
-                                            Padding="16,12"
-                                            Margin="8,0,0,0">
-                                        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
-                                            <!-- Event Icon/Circle -->
-                                            <Border HeightRequest="48" 
-                                                    WidthRequest="48" 
-                                                    StrokeShape="RoundRectangle 24"
-                                                    BackgroundColor="{Binding EffortBarColor}"
-                                                    StrokeThickness="0"
-                                                    HorizontalOptions="Center"
-                                                    VerticalOptions="Center">
-                                                <Label Text="{Binding Effort}"
-                                                       FontFamily="InterBold"
-                                                       FontSize="18"
-                                                       TextColor="White"
-                                                       HorizontalOptions="Center"
-                                                       VerticalOptions="Center"/>
-                                            </Border>
-
-                                            <!-- Event Details -->
-                                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
-                                                <Label Text="{Binding Title}" 
-                                                       FontFamily="InterSemiBold"
-                                                       FontSize="16" 
-                                                       TextColor="{StaticResource TextPrimaryLight}"/>
-                                                
-                                                <Label Text="{Binding Subject}" 
-                                                       FontFamily="InterRegular"
-                                                       FontSize="13" 
-                                                       TextColor="{StaticResource TextSecondaryLight}"/>
-                                                
-                                                <!-- Progress Bar -->
-                                                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8" Margin="0,4,0,0">
-                                                    <ProgressBar Progress="{Binding CompletionPercent, Converter={StaticResource ProgressWidthConverter}}"
-                                                                 ProgressColor="#2196F3"
-                                                                 HeightRequest="4"
-                                                                 VerticalOptions="Center"/>
-                                                    <Label Grid.Column="1"
-                                                           Text="{Binding CompletionPercent, StringFormat='{0}%'}"
-                                                           FontFamily="InterMedium"
-                                                           FontSize="11"
-                                                           TextColor="#2196F3"
-                                                           VerticalOptions="Center"/>
-                                                </Grid>
-                                            </VerticalStackLayout>
-
-                                            <!-- Checkbox -->
-                                            <Border Grid.Column="2"
-                                                    StrokeShape="Ellipse"
-                                                    HeightRequest="24"
-                                                    WidthRequest="24"
-                                                    Stroke="{Binding EffortBarColor}"
-                                                    StrokeThickness="2"
-                                                    BackgroundColor="Transparent"
-                                                    VerticalOptions="Center">
-                                                <Border.GestureRecognizers>
-                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=ToggleTaskCompletionCommand}"
-                                                                          CommandParameter="{Binding .}"/>
-                                                </Border.GestureRecognizers>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <CollectionView ItemsSource="{Binding DayTimelineItems}"
+                                    ItemTemplate="{StaticResource DayTimelineSelector}"
+                                    SelectionMode="None"/>
                 </Grid>
             </VerticalStackLayout>
         </ScrollView>
@@ -333,7 +402,7 @@
                                                HorizontalOptions="Center"
                                                VerticalOptions="Start"
                                                Margin="0,4,0,0"/>
-                                        
+
                                         <!-- Today Indicator Dot -->
                                         <Border Grid.Row="1"
                                                 StrokeShape="Ellipse"
@@ -344,16 +413,24 @@
                                                 HorizontalOptions="Center"
                                                 VerticalOptions="Center"
                                                 IsVisible="{Binding IsToday}"/>
-                                        
-                                        <!-- Daily Effort Bar -->
-                                        <BoxView Grid.Row="2"
-                                                 Color="{Binding EffortBarColor}"
-                                                 HeightRequest="3"
-                                                 CornerRadius="1.5"
-                                                 HorizontalOptions="Fill"
-                                                 VerticalOptions="End"
-                                                 Margin="4,0,4,4"
-                                                 IsVisible="{Binding HasEffort}"/>
+
+                                        <!-- Intensity Dots -->
+                                        <HorizontalStackLayout Grid.Row="2"
+                                                                Spacing="2"
+                                                                HorizontalOptions="Center"
+                                                                VerticalOptions="End"
+                                                                Margin="0,0,0,4"
+                                                                BindableLayout.ItemsSource="{Binding TaskIndicatorColors}">
+                                            <BindableLayout.ItemTemplate>
+                                                <DataTemplate x:DataType="x:String">
+                                                    <Border StrokeShape="Ellipse"
+                                                            HeightRequest="6"
+                                                            WidthRequest="6"
+                                                            BackgroundColor="{Binding .}"
+                                                            StrokeThickness="0"/>
+                                                </DataTemplate>
+                                            </BindableLayout.ItemTemplate>
+                                        </HorizontalStackLayout>
                                     </Grid>
                                     <Border.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=SelectDayCommand}"
@@ -463,9 +540,25 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- Timeline & Week Content -->
-        <ScrollView Grid.Row="3" BackgroundColor="White" IsVisible="{Binding ViewMode, Converter={StaticResource ViewModeVisibilityConverter}, ConverterParameter='Timeline,Week'}">
+        <!-- Timeline View -->
+        <ScrollView Grid.Row="3" BackgroundColor="White" IsVisible="{Binding ViewMode, Converter={StaticResource ViewModeVisibilityConverter}, ConverterParameter='Timeline'}">
             <Grid>
+                <!-- Empty State -->
+                <Label Text="No tasks in this window"
+                       FontFamily="InterMedium"
+                       FontSize="16"
+                       TextColor="{StaticResource Gray400}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Margin="0,60,0,0"
+                       IsVisible="False">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding Days.Count}" Value="0">
+                            <Setter Property="IsVisible" Value="True"/>
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+
                 <!-- Timeline Line (Vertical Guide) -->
                 <BoxView Color="{StaticResource Gray100}" 
                          WidthRequest="1" 
@@ -540,7 +633,7 @@
                                     <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=NavigateToTaskCommand}"
                                                           CommandParameter="{Binding .}"/>
                                 </Grid.GestureRecognizers>
-                                
+
                                 <!-- Time Column -->
                                 <VerticalStackLayout HorizontalOptions="End" Margin="0,0,16,0">
                                     <Label Text="{Binding Time}" 
@@ -569,11 +662,25 @@
                                                 Margin="0,8,0,0"/>
 
                                         <VerticalStackLayout Spacing="4">
-                                            <Label Text="{Binding Title}" 
-                                                   FontFamily="InterSemiBold"
-                                                   FontSize="16" 
-                                                   TextColor="{StaticResource TextPrimaryLight}"/>
-                                            
+                                            <HorizontalStackLayout Spacing="8">
+                                                <Label Text="{Binding Title}" 
+                                                       FontFamily="InterSemiBold"
+                                                       FontSize="16" 
+                                                       TextColor="{StaticResource TextPrimaryLight}"/>
+                                                <!-- Pending Badge -->
+                                                <Border StrokeShape="RoundRectangle 4"
+                                                        BackgroundColor="#fee2e2"
+                                                        Padding="6,2"
+                                                        StrokeThickness="0"
+                                                        VerticalOptions="Center"
+                                                        IsVisible="{Binding IsPending}">
+                                                    <Label Text="Pending"
+                                                           FontFamily="InterSemiBold"
+                                                           FontSize="10"
+                                                           TextColor="#b91c1c"/>
+                                                </Border>
+                                            </HorizontalStackLayout>
+
                                             <!-- Subtitle with Effort Badge -->
                                             <HorizontalStackLayout Spacing="8">
                                                 <Label Text="{Binding Subtitle}" 
@@ -581,17 +688,17 @@
                                                        FontSize="14" 
                                                        TextColor="{StaticResource TextSecondaryLight}"
                                                        VerticalOptions="Center"/>
-                                                
-                                                <!-- Effort Badge -->
-                                                <Border StrokeShape="RoundRectangle 3"
-                                                        BackgroundColor="{Binding EffortBarColor}"
+
+                                                <!-- Effort Badge Pill -->
+                                                <Border StrokeShape="RoundRectangle 6"
+                                                        BackgroundColor="#EFF6FF"
                                                         Padding="6,2"
                                                         StrokeThickness="0"
                                                         VerticalOptions="Center">
-                                                    <Label Text="{Binding Effort, StringFormat='Effort: {0}/10'}"
-                                                           FontFamily="InterMedium"
-                                                           FontSize="11"
-                                                           TextColor="White"/>
+                                                    <Label Text="{Binding Effort, StringFormat='Effort {0}'}"
+                                                           FontFamily="InterSemiBold"
+                                                           FontSize="12"
+                                                           TextColor="#104EB0"/>
                                                 </Border>
                                             </HorizontalStackLayout>
                                         </VerticalStackLayout>

@@ -8,11 +8,11 @@ public class ProgressWidthConverter : IValueConverter
     {
         if (value is int percent)
         {
-            // Return the percentage value which will be used with Grid binding
-            // For a 100% progress, we want it to fill the entire parent
-            // The parent Grid column is set to "*" which takes available space
-            // We'll return a multiplier that represents the percentage
-            return percent / 100.0; // 100 becomes 1.0, 50 becomes 0.5, etc.
+            return percent / 100.0;
+        }
+        if (value is double dPercent)
+        {
+            return dPercent / 100.0;
         }
         return 0.0;
     }
