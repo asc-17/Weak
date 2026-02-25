@@ -10,6 +10,27 @@ public partial class SettingsViewModel : ObservableObject
     private readonly CalendarImportService _calendarImport;
     private readonly TaskRepository _taskRepository;
     private readonly DatabaseService _database;
+    private readonly SettingsService _settingsService;
+
+    private bool _isInitializing;
+
+    [ObservableProperty]
+    private string userName = string.Empty;
+
+    [ObservableProperty]
+    private TimeSpan wakeTime = new TimeSpan(7, 0, 0);
+
+    [ObservableProperty]
+    private TimeSpan sleepTime = new TimeSpan(22, 0, 0);
+
+    [ObservableProperty]
+    private string weekStartDay = "sunday";
+
+    [ObservableProperty]
+    private bool notifWeeklyOverview;
+
+    [ObservableProperty]
+    private bool notifDeadlineReminder;
 
     [ObservableProperty]
     private bool notificationsEnabled = true;
@@ -20,37 +41,91 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string lastSyncTime = "Never";
 
+    public bool IsSundaySelected => WeekStartDay == "sunday";
+    public bool IsMondaySelected => WeekStartDay == "monday";
+
     public SettingsViewModel(
-        CalendarImportService calendarImport, 
+        CalendarImportService calendarImport,
         TaskRepository taskRepository,
-        DatabaseService database)
+        DatabaseService database,
+        SettingsService settingsService)
     {
         _calendarImport = calendarImport;
         _taskRepository = taskRepository;
         _database = database;
-        LoadSettings();
+        _settingsService = settingsService;
     }
 
-    private void LoadSettings()
+    public async Task InitializeAsync()
     {
-        NotificationsEnabled = Preferences.Get("notifications_enabled", true);
-        CalendarSyncEnabled = Preferences.Get("calendar_sync_enabled", false);
-        LastSyncTime = Preferences.Get("last_sync_time", "Never");
+        _isInitializing = true;
+        try
+        {
+            var settings = await _settingsService.GetSettingsAsync();
+            UserName = settings.Name ?? string.Empty;
+            WakeTime = settings.WakeTime;
+            SleepTime = settings.SleepTime;
+            WeekStartDay = settings.WeekStartDay ?? "sunday";
+            NotifWeeklyOverview = settings.NotifWeeklyOverview;
+            NotifDeadlineReminder = settings.NotifDeadlineReminder;
+            NotificationsEnabled = Preferences.Get("notifications_enabled", true);
+            CalendarSyncEnabled = Preferences.Get("calendar_sync_enabled", false);
+            LastSyncTime = Preferences.Get("last_sync_time", "Never");
+        }
+        finally
+        {
+            _isInitializing = false;
+        }
     }
+
+    private async Task SaveAsync()
+    {
+        if (_isInitializing) return;
+        var settings = await _settingsService.GetSettingsAsync();
+        settings.Name = UserName;
+        settings.WakeTime = WakeTime;
+        settings.SleepTime = SleepTime;
+        settings.WeekStartDay = WeekStartDay;
+        settings.NotifWeeklyOverview = NotifWeeklyOverview;
+        settings.NotifDeadlineReminder = NotifDeadlineReminder;
+        await _settingsService.SaveSettingsAsync(settings);
+    }
+
+    [RelayCommand]
+    private void SetWeekStart(string day)
+    {
+        WeekStartDay = day;
+    }
+
+    partial void OnUserNameChanged(string value) => _ = SaveAsync();
+    partial void OnWakeTimeChanged(TimeSpan value) => _ = SaveAsync();
+    partial void OnSleepTimeChanged(TimeSpan value) => _ = SaveAsync();
+
+    partial void OnWeekStartDayChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsSundaySelected));
+        OnPropertyChanged(nameof(IsMondaySelected));
+        _ = SaveAsync();
+    }
+
+    partial void OnNotifWeeklyOverviewChanged(bool value) => _ = SaveAsync();
+    partial void OnNotifDeadlineReminderChanged(bool value) => _ = SaveAsync();
 
     partial void OnNotificationsEnabledChanged(bool value)
     {
         Preferences.Set("notifications_enabled", value);
+        if (!value)
+        {
+            NotifWeeklyOverview = false;
+            NotifDeadlineReminder = false;
+        }
     }
 
     partial void OnCalendarSyncEnabledChanged(bool value)
     {
         Preferences.Set("calendar_sync_enabled", value);
-        
         if (value)
-        {
             _ = SyncCalendarAsync();
-        }
     }
 
     [RelayCommand]
@@ -134,26 +209,4 @@ public partial class SettingsViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task ResetSettings()
-    {
-        var confirm = await Application.Current!.MainPage!.DisplayAlert(
-            "Reset All Settings",
-            "This will delete all tasks and reset all preferences. Continue?",
-            "Reset",
-            "Cancel");
-
-        if (confirm)
-        {
-            Preferences.Clear();
-            
-            var allTasks = await _taskRepository.GetAllTasksAsync();
-            foreach (var task in allTasks)
-            {
-                await _taskRepository.DeleteTaskAsync(task);
-            }
-
-            LoadSettings();
-        }
     }
-}
