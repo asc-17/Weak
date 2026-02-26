@@ -16,6 +16,12 @@ public class TaskRepository
         return await _database.GetAllTasksAsync();
     }
 
+    public async Task<List<TaskItem>> GetStandaloneTasksAsync()
+    {
+        var all = await _database.GetAllTasksAsync();
+        return all.Where(t => t.ParentListId == null).ToList();
+    }
+
     public async Task<TaskItem?> GetTaskByIdAsync(int id)
     {
         return await _database.GetTaskByIdAsync(id);

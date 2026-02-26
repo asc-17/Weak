@@ -9,6 +9,7 @@ namespace Weak.ViewModels;
 public partial class CalendarViewModel : ObservableObject
 {
     private readonly TaskRepository _taskRepository;
+    private readonly TaskListRepository _taskListRepository;
     private readonly SettingsService _settingsService;
     private readonly WeekComputationService _weekComputationService;
 
@@ -42,9 +43,10 @@ public partial class CalendarViewModel : ObservableObject
     [ObservableProperty]
     private TimeSpan sleepTime = new(23, 0, 0);
 
-    public CalendarViewModel(TaskRepository taskRepository, SettingsService settingsService, WeekComputationService weekComputationService)
+    public CalendarViewModel(TaskRepository taskRepository, TaskListRepository taskListRepository, SettingsService settingsService, WeekComputationService weekComputationService)
     {
         _taskRepository = taskRepository;
+        _taskListRepository = taskListRepository;
         _settingsService = settingsService;
         _weekComputationService = weekComputationService;
     }
@@ -118,7 +120,7 @@ public partial class CalendarViewModel : ObservableObject
 
         var allTasks = await _taskRepository.GetAllTasksAsync();
         var tasksForDay = allTasks
-            .Where(t => t.Deadline.Date == SelectedDate.Date)
+            .Where(t => t.Deadline.Date == SelectedDate.Date && t.ParentListId == null)
             .OrderBy(t => t.Deadline.TimeOfDay)
             .ToList();
 
@@ -138,6 +140,14 @@ public partial class CalendarViewModel : ObservableObject
         foreach (var task in tasksForDay)
         {
             timelineItems.Add((task.Deadline.TimeOfDay, task));
+        }
+
+        // Add lists for this day
+        var allLists = await _taskListRepository.GetAllTaskListsAsync();
+        var listsForDay = allLists.Where(l => l.DueDate.Date == SelectedDate.Date).ToList();
+        foreach (var list in listsForDay)
+        {
+            timelineItems.Add((list.DueDate.TimeOfDay, list));
         }
 
         foreach (var item in timelineItems.OrderBy(x => x.SortTime))
@@ -234,7 +244,7 @@ public partial class CalendarViewModel : ObservableObject
 
         var allTasks = await _taskRepository.GetAllTasksAsync();
         var tasksInWeek = allTasks
-            .Where(t => t.Deadline.Date >= weekStart && t.Deadline.Date < weekStart.AddDays(7))
+            .Where(t => t.ParentListId == null && t.Deadline.Date >= weekStart && t.Deadline.Date < weekStart.AddDays(7))
             .GroupBy(t => t.Deadline.Date)
             .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -290,6 +300,43 @@ public partial class CalendarViewModel : ObservableObject
             await LoadMonthViewAsync();
     }
 
+    [RelayCommand]
+    private void ToggleListExpand(TaskList list)
+    {
+        if (list != null)
+            list.IsExpanded = !list.IsExpanded;
+    }
+
+    [RelayCommand]
+    private async Task ToggleListSubtask(TaskItem subtask)
+    {
+        if (subtask == null) return;
+
+        subtask.IsCompleted = !subtask.IsCompleted;
+        await _taskRepository.SaveTaskAsync(subtask);
+
+        // Recalculate parent list and refresh
+        if (subtask.ParentListId.HasValue)
+        {
+            var allLists = await _taskListRepository.GetAllTaskListsAsync();
+            var parentList = allLists.FirstOrDefault(l => l.Id == subtask.ParentListId.Value);
+            if (parentList != null)
+            {
+                // Find the list in DayTimelineItems and update it
+                for (int i = 0; i < DayTimelineItems.Count; i++)
+                {
+                    if (DayTimelineItems[i] is TaskList tl && tl.Id == parentList.Id)
+                    {
+                        var wasExpanded = tl.IsExpanded;
+                        parentList.IsExpanded = wasExpanded;
+                        DayTimelineItems[i] = parentList;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     private async Task LoadWeekViewAsync()
     {
         Days.Clear();
@@ -300,7 +347,7 @@ public partial class CalendarViewModel : ObservableObject
         var allTasks = await _taskRepository.GetAllTasksAsync();
 
         var tasksByDate = allTasks
-            .Where(t => t.Deadline.Date >= weekStart && t.Deadline.Date <= weekEnd)
+            .Where(t => t.ParentListId == null && t.Deadline.Date >= weekStart && t.Deadline.Date <= weekEnd)
             .GroupBy(t => t.Deadline.Date)
             .OrderBy(g => g.Key)
             .ToList();
@@ -336,8 +383,8 @@ public partial class CalendarViewModel : ObservableObject
 
         var allTasks = await _taskRepository.GetAllTasksAsync();
 
-        // Exclude day-only tasks from timeline view
-        var timelineTasks = allTasks.Where(t => !t.IsDayOnly).ToList();
+        // Exclude day-only tasks and subtasks from timeline view
+        var timelineTasks = allTasks.Where(t => !t.IsDayOnly && t.ParentListId == null).ToList();
 
         // Prepend overdue group: tasks before today that are not 100% complete
         var overdueTasks = timelineTasks
@@ -345,24 +392,47 @@ public partial class CalendarViewModel : ObservableObject
             .OrderBy(t => t.Deadline)
             .ToList();
 
-        if (overdueTasks.Any())
-        {
-            var overdueItems = overdueTasks
-                .Select(t => new CalendarItem
-                {
-                    Time = t.Deadline.ToString("hh:mm"),
-                    Period = t.Deadline.ToString("tt"),
-                    Title = t.Title,
-                    Subtitle = GetSubtitle(t),
-                    PriorityColor = t.SubjectColor,
-                    IsPriority = true,
-                    IsPending = true,
-                    Effort = t.Effort,
-                    CompletionPercent = t.CompletionPercent,
-                    EffortBarColor = GetEffortBarColor(t.Effort)
-                })
-                .ToList();
+        // Also get overdue lists
+        var allLists = await _taskListRepository.GetAllTaskListsAsync();
+        var overdueLists = allLists
+            .Where(l => l.DueDate.Date < DateTime.Today && l.WeightedCompletionPercent < 100)
+            .OrderBy(l => l.DueDate)
+            .ToList();
 
+        var overdueItems = new List<CalendarItem>();
+        overdueItems.AddRange(overdueTasks.Select(t => new CalendarItem
+        {
+            Time = t.Deadline.ToString("hh:mm"),
+            Period = t.Deadline.ToString("tt"),
+            Title = t.Title,
+            Subtitle = GetSubtitle(t),
+            PriorityColor = t.SubjectColor,
+            IsPriority = true,
+            IsPending = true,
+            Effort = t.Effort,
+            CompletionPercent = t.CompletionPercent,
+            EffortBarColor = GetEffortBarColor(t.Effort)
+        }));
+        overdueItems.AddRange(overdueLists.Select(l => new CalendarItem
+        {
+            Time = l.DueDate.ToString("hh:mm"),
+            Period = l.DueDate.ToString("tt"),
+            Title = l.Name,
+            Subtitle = l.Subject ?? string.Empty,
+            PriorityColor = "#3b82f6",
+            IsPriority = true,
+            IsPending = true,
+            IsListItem = true,
+            SubtaskProgress = l.SubtaskProgress,
+            WeightedCompletionPercent = l.WeightedCompletionPercent,
+            AverageEffort = l.AverageEffort,
+            Effort = (int)Math.Round(l.AverageEffort),
+            CompletionPercent = l.WeightedCompletionPercent,
+            EffortBarColor = GetEffortBarColor(l.AverageEffort)
+        }));
+
+        if (overdueItems.Any())
+        {
             Days.Add(new CalendarGroup("!", "", "Overdue", false, overdueItems));
         }
 
@@ -370,36 +440,65 @@ public partial class CalendarViewModel : ObservableObject
         var startDate = DateTime.Today;
         var endDate = DateTime.Today.AddDays(30);
 
-        var tasksByDate = timelineTasks
-            .Where(t => t.Deadline.Date >= startDate && t.Deadline.Date <= endDate)
-            .GroupBy(t => t.Deadline.Date)
-            .OrderBy(g => g.Key)
-            .ToList();
+        // Group standalone tasks and lists by date
+        var entriesByDate = new SortedDictionary<DateTime, List<CalendarItem>>();
 
-        foreach (var group in tasksByDate)
+        var futureTimelineTasks = timelineTasks
+            .Where(t => t.Deadline.Date >= startDate && t.Deadline.Date <= endDate);
+
+        foreach (var t in futureTimelineTasks)
         {
-            var date = group.Key;
+            var date = t.Deadline.Date;
+            if (!entriesByDate.ContainsKey(date))
+                entriesByDate[date] = new List<CalendarItem>();
+
+            entriesByDate[date].Add(new CalendarItem
+            {
+                Time = t.Deadline.ToString("hh:mm"),
+                Period = t.Deadline.ToString("tt"),
+                Title = t.Title,
+                Subtitle = GetSubtitle(t),
+                PriorityColor = t.SubjectColor,
+                IsPriority = t.Deadline.Date <= DateTime.Today.AddDays(1),
+                IsPending = t.Deadline.Date < DateTime.Today && t.CompletionPercent < 100,
+                Effort = t.Effort,
+                CompletionPercent = t.CompletionPercent,
+                EffortBarColor = GetEffortBarColor(t.Effort)
+            });
+        }
+
+        var futureLists = allLists
+            .Where(l => l.DueDate.Date >= startDate && l.DueDate.Date <= endDate);
+
+        foreach (var l in futureLists)
+        {
+            var date = l.DueDate.Date;
+            if (!entriesByDate.ContainsKey(date))
+                entriesByDate[date] = new List<CalendarItem>();
+
+            entriesByDate[date].Add(new CalendarItem
+            {
+                Time = l.DueDate.ToString("hh:mm"),
+                Period = l.DueDate.ToString("tt"),
+                Title = l.Name,
+                Subtitle = l.Subject ?? string.Empty,
+                PriorityColor = "#3b82f6",
+                IsListItem = true,
+                SubtaskProgress = l.SubtaskProgress,
+                WeightedCompletionPercent = l.WeightedCompletionPercent,
+                AverageEffort = l.AverageEffort,
+                Effort = (int)Math.Round(l.AverageEffort),
+                CompletionPercent = l.WeightedCompletionPercent,
+                EffortBarColor = GetEffortBarColor(l.AverageEffort)
+            });
+        }
+
+        foreach (var (date, items) in entriesByDate)
+        {
             var dayName = date.ToString("ddd");
             var dayNumber = date.Day.ToString();
             var title = GetDayTitle(date);
             var isToday = date.Date == DateTime.Today;
-
-            var items = group
-                .OrderBy(t => t.Deadline.TimeOfDay)
-                .Select(t => new CalendarItem
-                {
-                    Time = t.Deadline.ToString("hh:mm"),
-                    Period = t.Deadline.ToString("tt"),
-                    Title = t.Title,
-                    Subtitle = GetSubtitle(t),
-                    PriorityColor = t.SubjectColor,
-                    IsPriority = t.Deadline.Date <= DateTime.Today.AddDays(1),
-                    IsPending = t.Deadline.Date < DateTime.Today && t.CompletionPercent < 100,
-                    Effort = t.Effort,
-                    CompletionPercent = t.CompletionPercent,
-                    EffortBarColor = GetEffortBarColor(t.Effort)
-                })
-                .ToList();
 
             Days.Add(new CalendarGroup(dayName, dayNumber, title, isToday, items));
         }

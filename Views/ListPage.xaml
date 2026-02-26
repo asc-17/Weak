@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Weak.ViewModels"
+             xmlns:models="clr-namespace:Weak.Models"
+             x:Class="Weak.Views.ListPage"
+             Title="List"
+             BackgroundColor="{StaticResource BackgroundLight}"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Header -->
+        <Grid Padding="24,16" ColumnDefinitions="Auto, *" BackgroundColor="#104EB0">
+            <Border HeightRequest="40"
+                    WidthRequest="40"
+                    StrokeShape="RoundRectangle 20"
+                    BackgroundColor="Transparent"
+                    StrokeThickness="0"
+                    VerticalOptions="Center">
+                <Image Source="back.svg"
+                       HeightRequest="24"
+                       WidthRequest="24"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+            <Label Grid.Column="1"
+                   Text="List"
+                   FontFamily="InterBold"
+                   FontSize="20"
+                   TextColor="White"
+                   VerticalOptions="Center"
+                   Margin="12,0,0,0"/>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="24,16" Spacing="20">
+
+                <!-- Editable Name -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="LIST NAME"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Entry Text="{Binding ListName}"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Editable Subject -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="SUBJECT (OPTIONAL)"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Entry Text="{Binding Subject}"
+                               Placeholder="e.g., Mathematics"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Editable Due Date -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="DUE DATE"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <DatePicker Date="{Binding DueDate}"
+                                    FontFamily="InterRegular"
+                                    FontSize="16"
+                                    TextColor="{StaticResource TextPrimaryLight}"
+                                    MinimumDate="2024-01-01"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Summary Card -->
+                <Border StrokeShape="RoundRectangle 12"
+                        BackgroundColor="#f0f9ff"
+                        Stroke="{StaticResource Primary}"
+                        StrokeThickness="1"
+                        Padding="20,16">
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                            <Label Text="{Binding WeightedCompletionPercent, StringFormat='{0:F0}%'}"
+                                   FontFamily="InterBold"
+                                   FontSize="28"
+                                   TextColor="{StaticResource Primary}"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Completion"
+                                   FontFamily="InterMedium"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondaryLight}"
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center">
+                            <Label Text="{Binding AverageEffort, StringFormat='{0:F1}'}"
+                                   FontFamily="InterBold"
+                                   FontSize="28"
+                                   TextColor="#104EB0"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Avg Effort"
+                                   FontFamily="InterMedium"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondaryLight}"
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2" Spacing="4" HorizontalOptions="Center">
+                            <Label Text="{Binding SubtaskProgress}"
+                                   FontFamily="InterBold"
+                                   FontSize="18"
+                                   TextColor="{StaticResource TextPrimaryLight}"
+                                   HorizontalOptions="Center"/>
+                            <Label Text="Tasks"
+                                   FontFamily="InterMedium"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondaryLight}"
+                                   HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Subtasks Section -->
+                <Label Text="SUBTASKS"
+                       FontFamily="InterSemiBold"
+                       FontSize="12"
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+
+                <CollectionView ItemsSource="{Binding Subtasks}"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:TaskItem">
+                            <SwipeView>
+                                <SwipeView.RightItems>
+                                    <SwipeItems>
+                                        <SwipeItem Text="Delete"
+                                                   BackgroundColor="#ef4444"
+                                                   Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ListViewModel}}, Path=DeleteSubtaskCommand}"
+                                                   CommandParameter="{Binding .}"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+
+                                <Border StrokeShape="RoundRectangle 10"
+                                        BackgroundColor="White"
+                                        Stroke="{StaticResource Gray200}"
+                                        StrokeThickness="1"
+                                        Padding="12,10"
+                                        Margin="0,0,0,8">
+                                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                                        <!-- Checkbox -->
+                                        <Border HeightRequest="24"
+                                                WidthRequest="24"
+                                                StrokeShape="Ellipse"
+                                                Stroke="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxColorConverter}}"
+                                                BackgroundColor="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxBgConverter}}"
+                                                StrokeThickness="2"
+                                                VerticalOptions="Center">
+                                            <Label Text="&#x2713;"
+                                                   FontSize="14"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"
+                                                   IsVisible="{Binding IsCompleted}"/>
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ListViewModel}}, Path=ToggleSubtaskCommand}"
+                                                                      CommandParameter="{Binding .}"/>
+                                            </Border.GestureRecognizers>
+                                        </Border>
+
+                                        <!-- Name -->
+                                        <Label Grid.Column="1"
+                                               Text="{Binding Title}"
+                                               FontFamily="InterRegular"
+                                               FontSize="16"
+                                               TextColor="{Binding IsCompleted, Converter={StaticResource BoolToTextColorConverter}}"
+                                               TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethroughConverter}}"
+                                               VerticalOptions="Center"/>
+
+                                        <!-- Effort Badge -->
+                                        <Border Grid.Column="2"
+                                                StrokeShape="RoundRectangle 6"
+                                                BackgroundColor="#EFF6FF"
+                                                Stroke="Transparent"
+                                                Padding="6,2"
+                                                VerticalOptions="Center">
+                                            <Label Text="{Binding Effort}"
+                                                   FontFamily="InterSemiBold"
+                                                   FontSize="12"
+                                                   TextColor="#104EB0"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Inline Add Subtask Form -->
+                <VerticalStackLayout Spacing="12" IsVisible="{Binding IsAddingSubtask}">
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Entry Placeholder="Task name"
+                               Text="{Binding NewSubtaskName}"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                    </Border>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Text="EFFORT"
+                                   FontFamily="InterSemiBold"
+                                   FontSize="12"
+                                   TextColor="{StaticResource TextSecondaryLight}"
+                                   VerticalOptions="Center"/>
+                            <Label Grid.Column="1"
+                                   FontFamily="InterBold"
+                                   FontSize="16"
+                                   TextColor="{StaticResource Primary}"
+                                   VerticalOptions="Center">
+                                <Label.Text>
+                                    <Binding Path="NewSubtaskEffort" StringFormat="{}{0:F0}"/>
+                                </Label.Text>
+                            </Label>
+                        </Grid>
+                        <Slider Minimum="1"
+                                Maximum="10"
+                                Value="{Binding NewSubtaskEffort}"
+                                MinimumTrackColor="{StaticResource Primary}"
+                                MaximumTrackColor="{StaticResource Gray200}"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="DATE (OPTIONAL)"
+                               FontFamily="InterSemiBold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextSecondaryLight}"/>
+                        <Border StrokeShape="RoundRectangle 10"
+                                BackgroundColor="White"
+                                Stroke="{StaticResource Gray200}"
+                                StrokeThickness="1"
+                                Padding="14,10">
+                            <DatePicker Date="{Binding NewSubtaskDate}"
+                                        FontFamily="InterRegular"
+                                        FontSize="16"
+                                        TextColor="{StaticResource TextPrimaryLight}"
+                                        MinimumDate="2024-01-01"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                        <Border StrokeShape="RoundRectangle 10"
+                                BackgroundColor="{StaticResource Primary}"
+                                StrokeThickness="0"
+                                Padding="12">
+                            <Label Text="Add"
+                                   FontFamily="InterSemiBold"
+                                   FontSize="15"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"/>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddSubtaskCommand}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                        <Border Grid.Column="1"
+                                StrokeShape="RoundRectangle 10"
+                                BackgroundColor="White"
+                                Stroke="{StaticResource Gray200}"
+                                StrokeThickness="1"
+                                Padding="12">
+                            <Label Text="Cancel"
+                                   FontFamily="InterSemiBold"
+                                   FontSize="15"
+                                   TextColor="{StaticResource TextSecondaryLight}"
+                                   HorizontalOptions="Center"/>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CancelAddSubtaskCommand}"/>
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Add Subtask Button -->
+                <Border StrokeShape="RoundRectangle 10"
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Primary}"
+                        StrokeThickness="1.5"
+                        Padding="12"
+                        IsVisible="{Binding IsAddingSubtask, Converter={StaticResource InverseBoolConverter}}">
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="6">
+                        <Label Text="+" FontFamily="InterRegular" FontSize="18" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                        <Label Text="Add Task" FontFamily="InterSemiBold" FontSize="15" TextColor="{StaticResource Primary}" VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ShowAddSubtaskCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

@@ -40,6 +40,9 @@ public class TaskList : ObservableObject
     public double AverageEffort { get; set; }
 
     [Ignore]
+    public double WeightedCompletionPercent { get; set; }
+
+    [Ignore]
     public int SubtaskCount { get; set; }
 
     [Ignore]

@@ -126,20 +126,28 @@ public partial class TasksViewModel : ObservableObject
     [RelayCommand]
     private async Task AddTask()
     {
-        await Shell.Current.GoToAsync("createtask");
+        await Shell.Current.GoToAsync("create");
+    }
+
+    [RelayCommand]
+    private async Task CreateNew()
+    {
+        await Shell.Current.GoToAsync("create");
     }
 
     [RelayCommand]
     private async Task AddList()
     {
-        await Shell.Current.GoToAsync("createlist");
+        await Shell.Current.GoToAsync("create");
     }
 
     [RelayCommand]
-    private void ToggleListExpand(TaskList list)
+    private async Task OpenList(TaskList list)
     {
         if (list != null)
-            list.IsExpanded = !list.IsExpanded;
+        {
+            await Shell.Current.GoToAsync($"listpage?listId={list.Id}");
+        }
     }
 
     [RelayCommand]

@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Weak.ViewModels"
+             x:Class="Weak.Views.UnifiedCreationPage"
+             Title="Create"
+             BackgroundColor="{StaticResource BackgroundLight}"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="0" Spacing="24">
+
+            <!-- Custom Header -->
+            <Grid Padding="24,16" ColumnDefinitions="Auto, *" BackgroundColor="#104EB0">
+                <Border HeightRequest="40"
+                        WidthRequest="40"
+                        StrokeShape="RoundRectangle 20"
+                        BackgroundColor="Transparent"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                    <Image Source="back.svg"
+                           HeightRequest="24"
+                           WidthRequest="24"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Label Grid.Column="1"
+                       Text="Create New"
+                       FontFamily="InterBold"
+                       FontSize="20"
+                       TextColor="White"
+                       VerticalOptions="Center"
+                       Margin="12,0,0,0"/>
+            </Grid>
+
+            <!-- Tab Switcher -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="0" Margin="24,0">
+                <Border StrokeShape="RoundRectangle 10,0,10,0"
+                        BackgroundColor="{Binding IsTaskMode, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                        StrokeThickness="0"
+                        Padding="14,10">
+                    <Label Text="Create Task"
+                           FontFamily="InterSemiBold"
+                           FontSize="15"
+                           TextColor="{Binding IsTaskMode, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"
+                           HorizontalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SwitchToTaskCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 0,10,0,10"
+                        BackgroundColor="{Binding IsListMode, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                        StrokeThickness="0"
+                        Padding="14,10">
+                    <Label Text="Create List"
+                           FontFamily="InterSemiBold"
+                           FontSize="15"
+                           TextColor="{Binding IsListMode, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"
+                           HorizontalOptions="Center"/>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SwitchToListCommand}"/>
+                    </Border.GestureRecognizers>
+                </Border>
+            </Grid>
+
+            <VerticalStackLayout Padding="24,0" Spacing="20">
+
+                <!-- Name (shared field) -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{Binding NameLabel}"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Entry Placeholder="{Binding NamePlaceholder}"
+                               Text="{Binding Name}"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Subject (shared field) -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="SUBJECT (OPTIONAL)"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Entry Placeholder="e.g., Mathematics"
+                               Text="{Binding Subject}"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Category (task only) -->
+                <VerticalStackLayout Spacing="6" IsVisible="{Binding IsTaskMode}">
+                    <Label Text="CATEGORY"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Entry Placeholder="e.g., Homework, Exam"
+                               Text="{Binding Category}"
+                               FontFamily="InterRegular"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryLight}"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Date (shared field) -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="DATE"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <DatePicker Date="{Binding DueDate}"
+                                    FontFamily="InterRegular"
+                                    FontSize="16"
+                                    TextColor="{StaticResource TextPrimaryLight}"
+                                    MinimumDate="2024-01-01"/>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Effort Slider (task only) -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding IsTaskMode}">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Label Text="EFFORT"
+                               FontFamily="InterSemiBold"
+                               FontSize="12"
+                               TextColor="{StaticResource TextSecondaryLight}"
+                               VerticalOptions="Center"/>
+                        <Label Grid.Column="1"
+                               FontFamily="InterBold"
+                               FontSize="20"
+                               TextColor="{StaticResource Primary}"
+                               VerticalOptions="Center">
+                            <Label.Text>
+                                <Binding Path="Effort" StringFormat="{}{0:F0}"/>
+                            </Label.Text>
+                        </Label>
+                    </Grid>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,6">
+                        <VerticalStackLayout Spacing="6">
+                            <Slider Minimum="1"
+                                    Maximum="10"
+                                    Value="{Binding Effort}"
+                                    MinimumTrackColor="{StaticResource Primary}"
+                                    MaximumTrackColor="{StaticResource Gray200}"/>
+                            <Grid ColumnDefinitions="*, *, *">
+                                <Label Text="Low" FontFamily="InterMedium" FontSize="11" TextColor="{StaticResource Gray400}"/>
+                                <Label Grid.Column="1" Text="Medium" FontFamily="InterMedium" FontSize="11" TextColor="{StaticResource Gray400}" HorizontalOptions="Center"/>
+                                <Label Grid.Column="2" Text="High" FontFamily="InterMedium" FontSize="11" TextColor="{StaticResource Gray400}" HorizontalOptions="End"/>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Recurrence (task only) -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding IsTaskMode}">
+                    <Label Text="RECURRENCE"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <FlexLayout Wrap="Wrap" JustifyContent="Start">
+                        <Border StrokeShape="RoundRectangle 8"
+                                BackgroundColor="{Binding IsNoneSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                                Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="none"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="None" FontFamily="InterMedium" FontSize="13"
+                                   TextColor="{Binding IsNoneSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 8"
+                                BackgroundColor="{Binding IsDailySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                                Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="daily"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Daily" FontFamily="InterMedium" FontSize="13"
+                                   TextColor="{Binding IsDailySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 8"
+                                BackgroundColor="{Binding IsWeeklySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                                Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="weekly"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Weekly" FontFamily="InterMedium" FontSize="13"
+                                   TextColor="{Binding IsWeeklySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 8"
+                                BackgroundColor="{Binding IsMonthlySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                                Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="monthly"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Monthly" FontFamily="InterMedium" FontSize="13"
+                                   TextColor="{Binding IsMonthlySelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                        </Border>
+                        <Border StrokeShape="RoundRectangle 8"
+                                BackgroundColor="{Binding IsCustomSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=primary}"
+                                Stroke="Transparent" Padding="12,6" Margin="0,0,8,8">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SetRecurrenceCommand}" CommandParameter="custom"/>
+                            </Border.GestureRecognizers>
+                            <Label Text="Custom" FontFamily="InterMedium" FontSize="13"
+                                   TextColor="{Binding IsCustomSelected, Converter={StaticResource BoolToColorConverter}, ConverterParameter=text}"/>
+                        </Border>
+                    </FlexLayout>
+                    <Border IsVisible="{Binding IsCustomSelected}"
+                            StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Text="Every N days"
+                                   FontFamily="InterRegular"
+                                   FontSize="16"
+                                   TextColor="{StaticResource TextSecondaryLight}"
+                                   VerticalOptions="Center"/>
+                            <Entry Grid.Column="1"
+                                   Text="{Binding RecurrenceInterval}"
+                                   Keyboard="Numeric"
+                                   FontFamily="InterRegular"
+                                   FontSize="16"
+                                   TextColor="{StaticResource TextPrimaryLight}"
+                                   HorizontalTextAlignment="End"
+                                   WidthRequest="60"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- Visibility (task only) -->
+                <VerticalStackLayout Spacing="6" IsVisible="{Binding IsTaskMode}">
+                    <Label Text="VISIBILITY"
+                           FontFamily="InterSemiBold"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryLight}"/>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="White"
+                            Stroke="{StaticResource Gray200}"
+                            StrokeThickness="1"
+                            Padding="14,10">
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Text="Show only in Day view"
+                                   FontFamily="InterRegular"
+                                   FontSize="16"
+                                   VerticalOptions="Center"
+                                   TextColor="{StaticResource TextPrimaryLight}"/>
+                            <Switch Grid.Column="1"
+                                    IsToggled="{Binding IsDayOnly}"
+                                    OnColor="{StaticResource Primary}"
+                                    ThumbColor="White"/>
+                        </Grid>
+                    </Border>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+            <!-- Create Button -->
+            <Border StrokeShape="RoundRectangle 12"
+                    BackgroundColor="{StaticResource Primary}"
+                    StrokeThickness="0"
+                    Padding="16"
+                    Margin="24,24,24,40">
+                <Label Text="{Binding CreateButtonText}"
+                       FontFamily="InterSemiBold"
+                       FontSize="17"
+                       TextColor="White"
+                       HorizontalOptions="Center"/>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateCommand}"/>
+                </Border.GestureRecognizers>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

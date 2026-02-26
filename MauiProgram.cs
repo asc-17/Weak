@@ -68,6 +68,12 @@ namespace Weak
         builder.Services.AddTransient<CreateListViewModel>();
         builder.Services.AddTransient<CreateListPage>();
 
+        builder.Services.AddTransient<UnifiedCreationViewModel>();
+        builder.Services.AddTransient<UnifiedCreationPage>();
+
+        builder.Services.AddTransient<ListViewModel>();
+        builder.Services.AddTransient<ListPage>();
+
         builder.Services.AddTransient<YearlyOverviewViewModel>();
         builder.Services.AddTransient<YearlyOverviewPage>();
 

@@ -17,13 +17,35 @@ public class TaskListRepository
         var lists = await _database.GetAllTaskListsAsync();
         foreach (var list in lists)
         {
-            var subtasks = await _database.GetSubtasksForListAsync(list.Id);
-            list.Subtasks = subtasks;
-            list.SubtaskCount = subtasks.Count;
-            list.CompletedSubtaskCount = subtasks.Count(t => t.IsCompleted);
-            list.AverageEffort = subtasks.Any() ? subtasks.Average(t => t.Effort) : 0;
+            await RecalculateListProperties(list);
         }
         return lists;
+    }
+
+    public void RecalculateListPropertiesFromSubtasks(TaskList list)
+    {
+        var subtasks = list.Subtasks;
+        list.SubtaskCount = subtasks.Count;
+        list.CompletedSubtaskCount = subtasks.Count(t => t.IsCompleted);
+        list.AverageEffort = subtasks.Any() ? subtasks.Average(t => t.Effort) : 0;
+
+        var totalEffort = subtasks.Sum(t => t.Effort);
+        if (totalEffort > 0)
+        {
+            var weightedCompletion = subtasks.Sum(t => t.Effort * (t.IsCompleted ? 100.0 : 0.0));
+            list.WeightedCompletionPercent = weightedCompletion / totalEffort;
+        }
+        else
+        {
+            list.WeightedCompletionPercent = 0;
+        }
+    }
+
+    public async Task RecalculateListProperties(TaskList list)
+    {
+        var subtasks = await _database.GetSubtasksForListAsync(list.Id);
+        list.Subtasks = subtasks;
+        RecalculateListPropertiesFromSubtasks(list);
     }
 
     public async Task<TaskList?> GetTaskListByIdAsync(int id)

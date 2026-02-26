@@ -6,11 +6,13 @@ public class WeekComputationService
 {
     private readonly DatabaseService _database;
     private readonly SettingsService _settingsService;
+    private readonly TaskListRepository _taskListRepository;
 
-    public WeekComputationService(DatabaseService database, SettingsService settingsService)
+    public WeekComputationService(DatabaseService database, SettingsService settingsService, TaskListRepository taskListRepository)
     {
         _database = database;
         _settingsService = settingsService;
+        _taskListRepository = taskListRepository;
     }
 
     [Obsolete("Use GetWeekStartAsync to respect the user's week start preference.")]
@@ -38,6 +40,8 @@ public class WeekComputationService
         var weekEnd = weekStart.AddDays(6);
 
         var weekTasks = await _database.GetTasksByWeekAsync(weekStart, weekEnd);
+        // Exclude subtasks — they belong to lists and are accounted for via list aggregation
+        weekTasks = weekTasks.Where(t => t.ParentListId == null).ToList();
 
         var overdueTasks = new List<TaskItem>();
 #pragma warning disable CS0618
@@ -45,9 +49,13 @@ public class WeekComputationService
 #pragma warning restore CS0618
         {
             overdueTasks = await _database.GetOverdueTasksAsync();
+            overdueTasks = overdueTasks.Where(t => t.ParentListId == null).ToList();
         }
 
         var allTasks = weekTasks.Concat(overdueTasks).ToList();
+
+        // Include lists as synthetic items (Effort = avg subtask effort, Completion = weighted completion %)
+        await AppendListsAsTaskItems(allTasks, weekStart, weekEnd, includeOverdue: overdueTasks.Count > 0);
 
         var loadScore = CalculateLoadScore(allTasks);
         var weightedProgress = CalculateWeightedProgress(allTasks);
@@ -62,6 +70,35 @@ public class WeekComputationService
             Intensity = intensity,
             TaskCount = allTasks.Count
         };
+    }
+
+    private async Task AppendListsAsTaskItems(List<TaskItem> target, DateTime weekStart, DateTime weekEnd, bool includeOverdue)
+    {
+        var allLists = await _taskListRepository.GetAllTaskListsAsync();
+        var weekLists = allLists
+            .Where(l => l.DueDate.Date >= weekStart.Date && l.DueDate.Date <= weekEnd.Date)
+            .ToList();
+
+        if (includeOverdue)
+        {
+            var overdueLists = allLists
+                .Where(l => l.DueDate.Date < DateTime.Today && l.WeightedCompletionPercent < 100)
+                .ToList();
+            weekLists = weekLists.Concat(overdueLists).DistinctBy(l => l.Id).ToList();
+        }
+
+        foreach (var list in weekLists)
+        {
+            if (list.SubtaskCount == 0) continue;
+
+            target.Add(new TaskItem
+            {
+                Title = list.Name,
+                Effort = (int)Math.Round(list.AverageEffort),
+                CompletionPercent = list.WeightedCompletionPercent,
+                Deadline = list.DueDate
+            });
+        }
     }
 
     public double CalculateLoadScore(List<TaskItem> tasks)
@@ -118,6 +155,12 @@ public class WeekComputationService
                 continue;
 
             var tasks = await _database.GetTasksByWeekAsync(pastWeekStart, pastWeekEnd);
+            // Exclude subtasks
+            tasks = tasks.Where(t => t.ParentListId == null).ToList();
+
+            // Include lists as synthetic items
+            await AppendListsAsTaskItems(tasks, pastWeekStart, pastWeekEnd, includeOverdue: false);
+
             if (tasks.Count == 0)
                 continue;
 

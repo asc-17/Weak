@@ -12,4 +12,10 @@ public class CalendarItem
     public int Effort { get; set; }
     public double CompletionPercent { get; set; }
     public string EffortBarColor { get; set; } = "#4CAF50";
+
+    // List-specific properties
+    public bool IsListItem { get; set; }
+    public string SubtaskProgress { get; set; } = string.Empty;
+    public double WeightedCompletionPercent { get; set; }
+    public double AverageEffort { get; set; }
 }

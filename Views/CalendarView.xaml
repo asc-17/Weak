@@ -156,9 +156,111 @@
                 </Grid>
             </DataTemplate>
 
+            <!-- TaskList template for Day view -->
+            <DataTemplate x:Key="DayListTemplate" x:DataType="models:TaskList">
+                <VerticalStackLayout Padding="0,0,0,16">
+                    <Border StrokeShape="RoundRectangle 12"
+                            BackgroundColor="#f0f9ff"
+                            Stroke="{StaticResource Primary}"
+                            StrokeThickness="1"
+                            Padding="16,12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=ToggleListExpandCommand}"
+                                                  CommandParameter="{Binding .}"/>
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="6">
+                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding Name}"
+                                           FontFamily="InterSemiBold"
+                                           FontSize="16"
+                                           TextColor="{StaticResource TextPrimaryLight}"/>
+                                    <Label Text="{Binding Subject}"
+                                           FontFamily="InterRegular"
+                                           FontSize="13"
+                                           TextColor="{StaticResource TextSecondaryLight}"
+                                           IsVisible="{Binding Subject, Converter={StaticResource StringToBoolConverter}}"/>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="End" VerticalOptions="Center">
+                                    <Border StrokeShape="RoundRectangle 6"
+                                            BackgroundColor="#EFF6FF"
+                                            Stroke="Transparent"
+                                            Padding="6,2"
+                                            HorizontalOptions="End">
+                                        <Label Text="{Binding AverageEffort, StringFormat='Avg {0:F1}'}"
+                                               FontFamily="InterSemiBold"
+                                               FontSize="11"
+                                               TextColor="#104EB0"/>
+                                    </Border>
+                                    <Label Text="{Binding SubtaskProgress}"
+                                           FontFamily="InterMedium"
+                                           FontSize="12"
+                                           TextColor="{StaticResource TextSecondaryLight}"
+                                           HorizontalOptions="End"/>
+                                    <Label Text="{Binding WeightedCompletionPercent, StringFormat='{0:F0}%'}"
+                                           FontFamily="InterSemiBold"
+                                           FontSize="12"
+                                           TextColor="{StaticResource Primary}"
+                                           HorizontalOptions="End"/>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <!-- Expanded subtasks -->
+                            <CollectionView ItemsSource="{Binding Subtasks}"
+                                            IsVisible="{Binding IsExpanded}"
+                                            SelectionMode="None"
+                                            Margin="0,8,0,0">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:TaskItem">
+                                        <Grid ColumnDefinitions="Auto, *, Auto"
+                                              ColumnSpacing="8"
+                                              Padding="0,6">
+                                            <Border HeightRequest="20" WidthRequest="20"
+                                                    StrokeShape="Ellipse"
+                                                    Stroke="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxColorConverter}}"
+                                                    BackgroundColor="{Binding IsCompleted, Converter={StaticResource BoolToCheckboxBgConverter}}"
+                                                    StrokeThickness="2"
+                                                    VerticalOptions="Center">
+                                                <Label Text="&#x2713;" FontSize="12" FontAttributes="Bold"
+                                                       TextColor="White"
+                                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                                       IsVisible="{Binding IsCompleted}"/>
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CalendarViewModel}}, Path=ToggleListSubtaskCommand}"
+                                                                          CommandParameter="{Binding .}"/>
+                                                </Border.GestureRecognizers>
+                                            </Border>
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Title}"
+                                                   FontFamily="InterRegular"
+                                                   FontSize="14"
+                                                   TextColor="{Binding IsCompleted, Converter={StaticResource BoolToTextColorConverter}}"
+                                                   TextDecorations="{Binding IsCompleted, Converter={StaticResource BoolToStrikethroughConverter}}"
+                                                   VerticalOptions="Center"/>
+                                            <Border Grid.Column="2"
+                                                    StrokeShape="RoundRectangle 6"
+                                                    BackgroundColor="#EFF6FF"
+                                                    Stroke="Transparent"
+                                                    Padding="4,1"
+                                                    VerticalOptions="Center">
+                                                <Label Text="{Binding Effort}"
+                                                       FontFamily="InterSemiBold"
+                                                       FontSize="11"
+                                                       TextColor="#104EB0"/>
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </DataTemplate>
+
             <selectors:DayTimelineTemplateSelector x:Key="DayTimelineSelector"
                                                     TaskTemplate="{StaticResource DayTaskTemplate}"
-                                                    MarkerTemplate="{StaticResource DayMarkerTemplate}"/>
+                                                    MarkerTemplate="{StaticResource DayMarkerTemplate}"
+                                                    ListTemplate="{StaticResource DayListTemplate}"/>
         </ResourceDictionary>
     </ContentPage.Resources>
 
@@ -679,6 +781,18 @@
                                                            FontSize="10"
                                                            TextColor="#b91c1c"/>
                                                 </Border>
+                                                <!-- List Badge -->
+                                                <Border StrokeShape="RoundRectangle 4"
+                                                        BackgroundColor="#e0f2fe"
+                                                        Padding="6,2"
+                                                        StrokeThickness="0"
+                                                        VerticalOptions="Center"
+                                                        IsVisible="{Binding IsListItem}">
+                                                    <Label Text="List"
+                                                           FontFamily="InterSemiBold"
+                                                           FontSize="10"
+                                                           TextColor="#0369a1"/>
+                                                </Border>
                                             </HorizontalStackLayout>
 
                                             <!-- Subtitle with Effort Badge -->
@@ -698,27 +812,61 @@
                                                     <Label Text="{Binding Effort, StringFormat='Effort {0}'}"
                                                            FontFamily="InterSemiBold"
                                                            FontSize="12"
+                                                           TextColor="#104EB0"
+                                                           IsVisible="{Binding IsListItem, Converter={StaticResource InverseBoolConverter}}"/>
+                                                </Border>
+
+                                                <!-- List-specific: Avg Effort + Progress -->
+                                                <Border StrokeShape="RoundRectangle 6"
+                                                        BackgroundColor="#EFF6FF"
+                                                        Padding="6,2"
+                                                        StrokeThickness="0"
+                                                        VerticalOptions="Center"
+                                                        IsVisible="{Binding IsListItem}">
+                                                    <Label Text="{Binding AverageEffort, StringFormat='Avg {0:F1}'}"
+                                                           FontFamily="InterSemiBold"
+                                                           FontSize="12"
                                                            TextColor="#104EB0"/>
                                                 </Border>
+                                                <Label Text="{Binding SubtaskProgress}"
+                                                       FontFamily="InterMedium"
+                                                       FontSize="12"
+                                                       TextColor="{StaticResource TextSecondaryLight}"
+                                                       VerticalOptions="Center"
+                                                       IsVisible="{Binding IsListItem}"/>
                                             </HorizontalStackLayout>
                                         </VerticalStackLayout>
                                     </HorizontalStackLayout>
-                                    
-                                    <!-- Completion Bar Row -->
-                                    <HorizontalStackLayout Grid.Row="1" Spacing="8" Margin="18,8,0,0">
-                                        <!-- Progress Bar -->
+
+                                    <!-- Completion Bar Row (tasks) -->
+                                    <HorizontalStackLayout Grid.Row="1" Spacing="8" Margin="18,8,0,0"
+                                                           IsVisible="{Binding IsListItem, Converter={StaticResource InverseBoolConverter}}">
                                         <Grid WidthRequest="150">
                                             <ProgressBar Progress="{Binding CompletionPercent, Converter={StaticResource ProgressWidthConverter}}"
                                                          ProgressColor="#2196F3"
                                                          HeightRequest="4"
                                                          VerticalOptions="Center"/>
                                         </Grid>
-                                        
-                                        <!-- Completion Percentage -->
                                         <Label Text="{Binding CompletionPercent, StringFormat='{0}% complete'}"
                                                FontFamily="InterMedium"
                                                FontSize="11"
                                                TextColor="#2196F3"
+                                               VerticalOptions="Center"/>
+                                    </HorizontalStackLayout>
+
+                                    <!-- Weighted Completion Row (lists) -->
+                                    <HorizontalStackLayout Grid.Row="1" Spacing="8" Margin="18,8,0,0"
+                                                           IsVisible="{Binding IsListItem}">
+                                        <Grid WidthRequest="150">
+                                            <ProgressBar Progress="{Binding WeightedCompletionPercent, Converter={StaticResource ProgressWidthConverter}}"
+                                                         ProgressColor="{StaticResource Primary}"
+                                                         HeightRequest="4"
+                                                         VerticalOptions="Center"/>
+                                        </Grid>
+                                        <Label Text="{Binding WeightedCompletionPercent, StringFormat='{0:F0}% weighted'}"
+                                               FontFamily="InterMedium"
+                                               FontSize="11"
+                                               TextColor="{StaticResource Primary}"
                                                VerticalOptions="Center"/>
                                     </HorizontalStackLayout>
                                 </Grid>
