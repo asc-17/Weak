@@ -58,25 +58,6 @@
                     </Border>
                 </VerticalStackLayout>
 
-                <!-- Editable Subject -->
-                <VerticalStackLayout Spacing="6">
-                    <Label Text="SUBJECT (OPTIONAL)"
-                           FontFamily="InterSemiBold"
-                           FontSize="12"
-                           TextColor="{StaticResource TextSecondaryLight}"/>
-                    <Border StrokeShape="RoundRectangle 10"
-                            BackgroundColor="White"
-                            Stroke="{StaticResource Gray200}"
-                            StrokeThickness="1"
-                            Padding="14,10">
-                        <Entry Text="{Binding Subject}"
-                               Placeholder="e.g., Mathematics"
-                               FontFamily="InterRegular"
-                               FontSize="16"
-                               TextColor="{StaticResource TextPrimaryLight}"/>
-                    </Border>
-                </VerticalStackLayout>
-
                 <!-- Editable Due Date -->
                 <VerticalStackLayout Spacing="6">
                     <Label Text="DUE DATE"

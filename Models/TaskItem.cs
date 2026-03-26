@@ -51,25 +51,11 @@ public class TaskItem : ObservableObject
         set => SetProperty(ref _effort, value);
     }
 
-    private string? _category;
-    public string? Category
+    private string _icon = "default_task.svg";
+    public string Icon
     {
-        get => _category;
-        set => SetProperty(ref _category, value);
-    }
-
-    private string? _subject;
-    public string? Subject
-    {
-        get => _subject;
-        set => SetProperty(ref _subject, value);
-    }
-
-    private string _subjectColor = "#64748b";
-    public string SubjectColor
-    {
-        get => _subjectColor;
-        set => SetProperty(ref _subjectColor, value);
+        get => _icon;
+        set => SetProperty(ref _icon, value);
     }
 
     private TaskSource _source = TaskSource.Manual;

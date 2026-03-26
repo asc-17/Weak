@@ -27,12 +27,6 @@
             Route="HomeView" />
 
         <ShellContent 
-            Title="To-Do" 
-            Icon="check.svg"
-            ContentTemplate="{DataTemplate views:TasksView}" 
-            Route="TasksView" />
-        
-        <ShellContent 
             Title="Agenda" 
             Icon="calendar.svg"
             ContentTemplate="{DataTemplate views:CalendarView}" 

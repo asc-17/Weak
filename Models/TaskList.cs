@@ -15,13 +15,6 @@ public class TaskList : ObservableObject
         set => SetProperty(ref _name, value);
     }
 
-    private string? _subject;
-    public string? Subject
-    {
-        get => _subject;
-        set => SetProperty(ref _subject, value);
-    }
-
     private DateTime _dueDate;
     public DateTime DueDate
     {

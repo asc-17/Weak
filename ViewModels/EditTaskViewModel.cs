@@ -19,13 +19,13 @@ public partial class EditTaskViewModel : ObservableObject
     private string taskTitle = string.Empty;
 
     [ObservableProperty]
-    private string subject = string.Empty;
-
-    [ObservableProperty]
-    private string category = string.Empty;
+    private string icon = "default_task.svg";
 
     [ObservableProperty]
     private DateTime taskDate = DateTime.Today;
+
+    [ObservableProperty]
+    private TimeSpan timeOfDay = new(12, 0, 0);
 
     [ObservableProperty]
     private double effort = 5;
@@ -81,9 +81,9 @@ public partial class EditTaskViewModel : ObservableObject
         if (_currentTask != null)
         {
             taskTitle = _currentTask.Title;
-            subject = _currentTask.Subject ?? string.Empty;
-            category = _currentTask.Category ?? string.Empty;
-            taskDate = _currentTask.Deadline;
+            icon = _currentTask.Icon;
+            taskDate = _currentTask.Deadline.Date;
+            timeOfDay = _currentTask.Deadline.TimeOfDay;
             effort = _currentTask.Effort;
             completionPercent = _currentTask.CompletionPercent;
             recurrenceType = _currentTask.RecurrenceType;
@@ -91,9 +91,9 @@ public partial class EditTaskViewModel : ObservableObject
             isDayOnly = _currentTask.IsDayOnly;
 
             OnPropertyChanged(nameof(TaskTitle));
-            OnPropertyChanged(nameof(Subject));
-            OnPropertyChanged(nameof(Category));
+            OnPropertyChanged(nameof(Icon));
             OnPropertyChanged(nameof(TaskDate));
+            OnPropertyChanged(nameof(TimeOfDay));
             OnPropertyChanged(nameof(Effort));
             OnPropertyChanged(nameof(CompletionPercent));
             OnPropertyChanged(nameof(RecurrenceType));
@@ -129,9 +129,8 @@ public partial class EditTaskViewModel : ObservableObject
         }
 
         _currentTask.Title = taskTitle;
-        _currentTask.Subject = string.IsNullOrWhiteSpace(subject) ? null : subject;
-        _currentTask.Category = string.IsNullOrWhiteSpace(category) ? null : category;
-        _currentTask.Deadline = taskDate;
+        _currentTask.Icon = icon;
+        _currentTask.Deadline = taskDate.Date + timeOfDay;
         _currentTask.Effort = (int)Math.Round(effort);
         _currentTask.CompletionPercent = completionPercent;
         _currentTask.RecurrenceType = recurrenceType;

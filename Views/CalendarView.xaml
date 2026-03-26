@@ -72,10 +72,6 @@
                                 </HorizontalStackLayout>
 
                                 <HorizontalStackLayout Spacing="8">
-                                    <Label Text="{Binding Subject}" 
-                                           FontFamily="InterRegular"
-                                           FontSize="13" 
-                                           TextColor="{StaticResource TextSecondaryLight}"/>
                                     <!-- Effort Badge Pill -->
                                     <Border StrokeShape="RoundRectangle 6"
                                             BackgroundColor="#EFF6FF"
@@ -175,11 +171,6 @@
                                            FontFamily="InterSemiBold"
                                            FontSize="16"
                                            TextColor="{StaticResource TextPrimaryLight}"/>
-                                    <Label Text="{Binding Subject}"
-                                           FontFamily="InterRegular"
-                                           FontSize="13"
-                                           TextColor="{StaticResource TextSecondaryLight}"
-                                           IsVisible="{Binding Subject, Converter={StaticResource StringToBoolConverter}}"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="End" VerticalOptions="Center">
                                     <Border StrokeShape="RoundRectangle 6"
@@ -612,13 +603,7 @@
                                                        TextColor="{StaticResource TextPrimaryLight}"
                                                        VerticalOptions="Center"/>
                                             </HorizontalStackLayout>
-                                            
-                                            <!-- Subject and Category -->
-                                            <Label Text="{Binding Subject}" 
-                                                   FontFamily="InterRegular"
-                                                   FontSize="12" 
-                                                   TextColor="{StaticResource TextSecondaryLight}"/>
-                                            
+
                                             <!-- Progress Bar -->
                                             <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8" Margin="0,4,0,0">
                                                 <ProgressBar Progress="{Binding CompletionPercent, Converter={StaticResource ProgressWidthConverter}}"
@@ -795,14 +780,8 @@
                                                 </Border>
                                             </HorizontalStackLayout>
 
-                                            <!-- Subtitle with Effort Badge -->
+                                            <!-- Effort Badge -->
                                             <HorizontalStackLayout Spacing="8">
-                                                <Label Text="{Binding Subtitle}" 
-                                                       FontFamily="InterRegular"
-                                                       FontSize="14" 
-                                                       TextColor="{StaticResource TextSecondaryLight}"
-                                                       VerticalOptions="Center"/>
-
                                                 <!-- Effort Badge Pill -->
                                                 <Border StrokeShape="RoundRectangle 6"
                                                         BackgroundColor="#EFF6FF"
@@ -876,5 +855,27 @@
                 </CollectionView>
             </Grid>
         </ScrollView>
+
+        <!-- FAB: Create New -->
+        <Border Grid.Row="3"
+                StrokeShape="RoundRectangle 28"
+                HeightRequest="56"
+                WidthRequest="56"
+                BackgroundColor="{StaticResource Primary}"
+                StrokeThickness="0"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,24,24"
+                Shadow="{Shadow Brush='#40000000', Offset='0,4', Radius=8}">
+            <Label Text="+"
+                   FontFamily="InterBold"
+                   FontSize="28"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CreateNewCommand}"/>
+            </Border.GestureRecognizers>
+        </Border>
     </Grid>
 </ContentPage>

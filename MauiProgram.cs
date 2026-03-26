@@ -47,12 +47,6 @@ namespace Weak
         builder.Services.AddSingleton<HomeViewModel>();
         builder.Services.AddSingleton<HomeView>();
 
-        builder.Services.AddSingleton<TasksViewModel>();
-        builder.Services.AddSingleton<TasksView>();
-
-        builder.Services.AddTransient<CreateTaskViewModel>();
-        builder.Services.AddTransient<CreateTaskPage>();
-
         builder.Services.AddTransient<EditTaskViewModel>();
         builder.Services.AddTransient<EditTaskPage>();
 
@@ -64,9 +58,6 @@ namespace Weak
 
         builder.Services.AddTransient<OnboardingViewModel>();
         builder.Services.AddTransient<OnboardingPage>();
-
-        builder.Services.AddTransient<CreateListViewModel>();
-        builder.Services.AddTransient<CreateListPage>();
 
         builder.Services.AddTransient<UnifiedCreationViewModel>();
         builder.Services.AddTransient<UnifiedCreationPage>();

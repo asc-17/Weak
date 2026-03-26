@@ -405,8 +405,6 @@ public partial class CalendarViewModel : ObservableObject
             Time = t.Deadline.ToString("hh:mm"),
             Period = t.Deadline.ToString("tt"),
             Title = t.Title,
-            Subtitle = GetSubtitle(t),
-            PriorityColor = t.SubjectColor,
             IsPriority = true,
             IsPending = true,
             Effort = t.Effort,
@@ -418,8 +416,6 @@ public partial class CalendarViewModel : ObservableObject
             Time = l.DueDate.ToString("hh:mm"),
             Period = l.DueDate.ToString("tt"),
             Title = l.Name,
-            Subtitle = l.Subject ?? string.Empty,
-            PriorityColor = "#3b82f6",
             IsPriority = true,
             IsPending = true,
             IsListItem = true,
@@ -457,8 +453,6 @@ public partial class CalendarViewModel : ObservableObject
                 Time = t.Deadline.ToString("hh:mm"),
                 Period = t.Deadline.ToString("tt"),
                 Title = t.Title,
-                Subtitle = GetSubtitle(t),
-                PriorityColor = t.SubjectColor,
                 IsPriority = t.Deadline.Date <= DateTime.Today.AddDays(1),
                 IsPending = t.Deadline.Date < DateTime.Today && t.CompletionPercent < 100,
                 Effort = t.Effort,
@@ -481,8 +475,6 @@ public partial class CalendarViewModel : ObservableObject
                 Time = l.DueDate.ToString("hh:mm"),
                 Period = l.DueDate.ToString("tt"),
                 Title = l.Name,
-                Subtitle = l.Subject ?? string.Empty,
-                PriorityColor = "#3b82f6",
                 IsListItem = true,
                 SubtaskProgress = l.SubtaskProgress,
                 WeightedCompletionPercent = l.WeightedCompletionPercent,
@@ -541,19 +533,6 @@ public partial class CalendarViewModel : ObservableObject
         };
     }
 
-    private string GetSubtitle(TaskItem task)
-    {
-        var parts = new List<string>();
-
-        if (!string.IsNullOrEmpty(task.Subject))
-            parts.Add(task.Subject);
-
-        if (!string.IsNullOrEmpty(task.Category))
-            parts.Add(task.Category);
-
-        return parts.Any() ? string.Join(" • ", parts) : "No additional details";
-    }
-
     private int GetWeekNumber(DateTime date)
     {
         var culture = System.Globalization.CultureInfo.CurrentCulture;
@@ -583,5 +562,11 @@ public partial class CalendarViewModel : ObservableObject
         {
             await Shell.Current.GoToAsync($"edittask?taskId={task.Id}");
         }
+    }
+
+    [RelayCommand]
+    private async Task CreateNew()
+    {
+        await Shell.Current.GoToAsync("create");
     }
 }

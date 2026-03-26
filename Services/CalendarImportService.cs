@@ -42,10 +42,7 @@ public class CalendarImportService
                     Effort = suggestion.Effort ?? 1,
                     CompletionPercent = 0,
                     Source = TaskSource.Calendar,
-                    ExternalId = calendarEvent.Id,
-                    Subject = suggestion.Subject,
-                    Category = suggestion.Category,
-                    SubjectColor = "#64748b"
+                    ExternalId = calendarEvent.Id
                 };
 
                 await _database.SaveTaskAsync(newTask);

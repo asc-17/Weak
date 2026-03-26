@@ -60,61 +60,35 @@
 
             <VerticalStackLayout Padding="24,0" Spacing="20">
             
-            <!-- Task Name -->
+            <!-- Task Name with Icon -->
             <VerticalStackLayout Spacing="6">
                 <Label Text="TASK NAME" 
                        FontFamily="InterSemiBold"
                        FontSize="12" 
                        TextColor="{StaticResource TextSecondaryLight}"/>
-                <Border StrokeShape="RoundRectangle 10" 
-                        BackgroundColor="White"
-                        Stroke="{StaticResource Gray200}"
-                        StrokeThickness="1"
-                        Padding="14,10">
-                    <Entry Placeholder="e.g., Read Chapter 5"
+                <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                    <!-- Icon Placeholder Button -->
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="#1e293b"
+                            Stroke="Transparent"
+                            StrokeThickness="0"
+                            HeightRequest="48"
+                            WidthRequest="48"
+                            VerticalOptions="Center">
+                        <Image Source="{Binding Icon}"
+                               HeightRequest="24"
+                               WidthRequest="24"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Border>
+                    <Entry Grid.Column="1"
+                           Placeholder="e.g., Read Chapter 5"
                            Text="{Binding TaskTitle}"
                            FontFamily="InterRegular"
                            FontSize="16"
-                           TextColor="{StaticResource TextPrimaryLight}"/>
-                </Border>
-            </VerticalStackLayout>
-
-            <!-- Subject -->
-            <VerticalStackLayout Spacing="6">
-                <Label Text="SUBJECT" 
-                       FontFamily="InterSemiBold"
-                       FontSize="12" 
-                       TextColor="{StaticResource TextSecondaryLight}"/>
-                <Border StrokeShape="RoundRectangle 10" 
-                        BackgroundColor="White"
-                        Stroke="{StaticResource Gray200}"
-                        StrokeThickness="1"
-                        Padding="14,10">
-                    <Entry Placeholder="e.g., Mathematics"
-                           Text="{Binding Subject}"
-                           FontFamily="InterRegular"
-                           FontSize="16"
-                           TextColor="{StaticResource TextPrimaryLight}"/>
-                </Border>
-            </VerticalStackLayout>
-
-            <!-- Category -->
-            <VerticalStackLayout Spacing="6">
-                <Label Text="CATEGORY" 
-                       FontFamily="InterSemiBold"
-                       FontSize="12" 
-                       TextColor="{StaticResource TextSecondaryLight}"/>
-                <Border StrokeShape="RoundRectangle 10" 
-                        BackgroundColor="White"
-                        Stroke="{StaticResource Gray200}"
-                        StrokeThickness="1"
-                        Padding="14,10">
-                    <Entry Placeholder="e.g., Homework, Exam"
-                           Text="{Binding Category}"
-                           FontFamily="InterRegular"
-                           FontSize="16"
-                           TextColor="{StaticResource TextPrimaryLight}"/>
-                </Border>
+                           TextColor="{StaticResource TextPrimaryLight}"
+                           VerticalOptions="Center"/>
+                </Grid>
             </VerticalStackLayout>
 
             <!-- Date -->
@@ -133,6 +107,24 @@
                                 FontSize="16"
                                 TextColor="{StaticResource TextPrimaryLight}"
                                 MinimumDate="2024-01-01"/>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Time -->
+            <VerticalStackLayout Spacing="6">
+                <Label Text="TIME" 
+                       FontFamily="InterSemiBold"
+                       FontSize="12" 
+                       TextColor="{StaticResource TextSecondaryLight}"/>
+                <Border StrokeShape="RoundRectangle 10" 
+                        BackgroundColor="White"
+                        Stroke="{StaticResource Gray200}"
+                        StrokeThickness="1"
+                        Padding="14,10">
+                    <TimePicker Time="{Binding TimeOfDay}"
+                                FontFamily="InterRegular"
+                                FontSize="16"
+                                TextColor="{StaticResource TextPrimaryLight}"/>
                 </Border>
             </VerticalStackLayout>
 

@@ -19,9 +19,6 @@ public partial class ListViewModel : ObservableObject
     private string listName = string.Empty;
 
     [ObservableProperty]
-    private string subject = string.Empty;
-
-    [ObservableProperty]
     private DateTime dueDate = DateTime.Today;
 
     [ObservableProperty]
@@ -61,7 +58,6 @@ public partial class ListViewModel : ObservableObject
         if (_currentList == null) return;
 
         ListName = _currentList.Name;
-        Subject = _currentList.Subject ?? string.Empty;
         DueDate = _currentList.DueDate;
 
         await LoadSubtasksAsync();
@@ -121,8 +117,7 @@ public partial class ListViewModel : ObservableObject
             Deadline = NewSubtaskDate,
             CompletionPercent = 0,
             ParentListId = ListId,
-            Source = TaskSource.Manual,
-            SubjectColor = "#64748b"
+            Source = TaskSource.Manual
         };
 
         await _taskRepository.SaveTaskAsync(subtask);
@@ -145,7 +140,6 @@ public partial class ListViewModel : ObservableObject
         if (_currentList == null) return;
 
         _currentList.Name = ListName;
-        _currentList.Subject = string.IsNullOrWhiteSpace(Subject) ? null : Subject;
         _currentList.DueDate = DueDate;
 
         await _taskListRepository.SaveTaskListAsync(_currentList);

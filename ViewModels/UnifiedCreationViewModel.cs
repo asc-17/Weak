@@ -28,13 +28,13 @@ public partial class UnifiedCreationViewModel : ObservableObject
     private string name = string.Empty;
 
     [ObservableProperty]
-    private string subject = string.Empty;
-
-    [ObservableProperty]
-    private string category = string.Empty;
+    private string icon = "default_task.svg";
 
     [ObservableProperty]
     private DateTime dueDate = DateTime.Today.AddDays(1);
+
+    [ObservableProperty]
+    private TimeSpan timeOfDay = GetNextRoundTime();
 
     [ObservableProperty]
     private double effort = 5;
@@ -122,13 +122,11 @@ public partial class UnifiedCreationViewModel : ObservableObject
         var newTask = new TaskItem
         {
             Title = Name,
-            Subject = string.IsNullOrWhiteSpace(Subject) ? null : Subject,
-            Category = string.IsNullOrWhiteSpace(Category) ? null : Category,
-            Deadline = DueDate,
+            Icon = Icon,
+            Deadline = DueDate.Date + TimeOfDay,
             Effort = (int)Math.Round(Effort),
             CompletionPercent = 0,
             Source = TaskSource.Manual,
-            SubjectColor = GetRandomColor(),
             RecurrenceType = RecurrenceType,
             RecurrenceInterval = RecurrenceInterval,
             IsDayOnly = IsDayOnly,
@@ -156,21 +154,20 @@ public partial class UnifiedCreationViewModel : ObservableObject
         var list = new TaskList
         {
             Name = Name,
-            Subject = string.IsNullOrWhiteSpace(Subject) ? null : Subject,
-            DueDate = DueDate,
+            DueDate = DueDate.Date + TimeOfDay,
             CreatedAt = DateTime.UtcNow
         };
 
         await _taskListRepository.SaveTaskListAsync(list);
     }
 
-    private static string GetRandomColor()
+    private static TimeSpan GetNextRoundTime()
     {
-        var colors = new[]
-        {
-            "#ef4444", "#3b82f6", "#eab308", "#8b5cf6",
-            "#10b981", "#f97316", "#06b6d4", "#ec4899"
-        };
-        return colors[Random.Shared.Next(colors.Length)];
+        var now = DateTime.Now;
+        var minutes = now.Minute;
+        var roundedMinutes = minutes < 30 ? 30 : 0;
+        var hour = minutes < 30 ? now.Hour : now.Hour + 1;
+        if (hour >= 24) hour = 23;
+        return new TimeSpan(hour, roundedMinutes, 0);
     }
 }
